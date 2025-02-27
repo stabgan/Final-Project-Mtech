@@ -1,29 +1,36 @@
 %
+%
 % package:  iitmdissertation
-% version:  2025
+% version:  2022
+%
 %
 \NeedsTeXFormat {LaTeX2e}
 \ProvidesPackage{iitmdissertation}
 
 \RequirePackage{microtype}
-% Use a conditional for setspace options instead of inline conditionals:
-\ifdiss@synopsis
-  \RequirePackage[nodisplayskipstretch]{setspace}
-\else
-  \RequirePackage[nodisplayskipstretch,doublespacing]{setspace}
-\fi
+\RequirePackage[nodisplayskipstretch,
+                \ifdiss@synopsis\else doublespacing\fi]
+               {setspace}
 \RequirePackage{graphicx}
-\RequirePackage[belowskip=0pt]{subcaption}
+\RequirePackage[belowskip=0pt]
+               {subcaption}
 \RequirePackage{mathtools}
 \RequirePackage{booktabs}
 \RequirePackage{array}
 \RequirePackage{amsthm}
 \RequirePackage{amssymb}
 \RequirePackage[shortlabels]{enumitem}
-\RequirePackage[authoryear,round]{natbib}
+\RequirePackage[authoryear,
+                round]
+               {natbib}
 \RequirePackage{eso-pic}
-\RequirePackage[acronym,nonumberlist,nogroupskip,toc]{glossaries}
-\RequirePackage[intoc]{nomencl}
+\RequirePackage[acronym,
+                nonumberlist,
+                nogroupskip,
+                toc]
+               {glossaries}
+\RequirePackage[intoc]
+               {nomencl}
 \makenomenclature
 
 \ifdiss@devx

@@ -183,7 +183,7 @@
     runin       = false,
     beforeskip  = -1sp,
     afterskip   = -0.5cm,
-    tocindent   = \ifdiss@indenttoc 8em\else 0em \fi,
+    tocindent   = \ifdiss@indenttoc 8em\else 0em \fi,,
     tocnumwidth = 4em,
 ]{subsubsection}
 
