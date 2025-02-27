@@ -1,0 +1,56 @@
+% Example minimal cover code
+
+\begin{minipage}{0.44\textwidth}
+    \quad\includegraphics[width=0.5\textwidth]{iitm-logo}
+\end{minipage}
+\hfill
+\begin{minipage}{0.55\textwidth}
+    \setstretch{1}
+    \textupper{\asserttoken{dissertationDepartment}
+               {Department of Chemical Engineering}}
+    \par
+    \textupper{Indian Institute of Technology Madras}
+    \par
+    \textupper{Chennai -- 600036}
+\end{minipage}
+\par
+\makebox[\textwidth][l]{\rule{\paperwidth}{1mm}}
+
+\begin{center}
+\vspace*{\parskip}
+\begin{minipage}{0.75\textwidth}
+    \begin{center}
+        {\bfseries\LARGE
+         \asserttoken{dissertationTitle}
+            {Title of the Thesis}}
+    \end{center}
+\end{minipage}
+\end{center}
+
+\vspace{2\parskip}
+
+\begin{center}
+    \begin{minipage}[c]{0.9\textwidth}
+        \begin{center}
+            \itshape
+            A \asserttoken{dissertationType}{Project Report}\par
+            Submitted by \par
+            {\bfseries\textupper{\asserttoken{dissertationAuthorName}{Your Name}}}
+        \end{center}
+    \end{minipage}
+\end{center}
+
+\vspace{2\parskip}
+
+\begin{center}
+    \begin{minipage}[c]{0.9\textwidth}
+        \begin{center}
+            \itshape
+            For the award of the degree \par
+            Of \par
+            {\bfseries\textupper{\asserttoken{dissertationDegree}{M.Tech}}}\par
+            \asserttoken{dissertationMonth}{February}
+            \ \asserttoken{dissertationYear}{2025}
+        \end{center}
+    \end{minipage}
+\end{center}

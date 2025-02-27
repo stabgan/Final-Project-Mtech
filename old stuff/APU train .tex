@@ -1,0 +1,106 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{geometry}
+\usepackage{tikz}
+\usepackage{ebgaramond}
+\usepackage{enumitem}
+\usepackage{color}
+
+% Page layout settings
+\geometry{a4paper, margin=1in}
+
+% Header and footer settings
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\setlength{\headheight}{32.53278pt}
+\addtolength{\topmargin}{-20.53278pt}
+\fancyhead[L]{\includegraphics[height=1cm]{logo.png}}
+\fancyhead[C]{\small Advanced Anomaly Detection with Machine Learning}
+\fancyhead[R]{\small MTech Project Proposal}
+\fancyfoot[C]{\thepage}
+
+% Title format
+\titleformat{\section}
+  {\normalfont\LARGE\bfseries\color{blue}}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
+
+% Custom subtitle format
+\newcommand{\subtitle}[1]{%
+    \posttitle{%
+    \par\end{center}
+    \begin{center}\large#1\end{center}
+    \vskip0.5em}%
+}
+
+% Custom paragraph format
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+% Author information
+\title{\Huge\textbf{Advanced Anomaly Detection and Failure Prediction for Industrial Systems}\\ \vspace{0.5cm} \subtitle{Using Innovative Machine Learning Techniques}\\ \vspace{1cm} \LARGE Master of Technology Project Proposal}
+\author{\textbf{KAUSTABH GANGULY}}
+\date{}
+
+\begin{document}
+
+% Title Page
+\begin{titlepage}
+    \begin{center}
+        \vspace*{2cm}
+        
+        {\Huge\textbf{Advanced Anomaly Detection and Failure Prediction for Metro Train APU Using Innovative Machine Learning Techniques}}
+
+        \vspace{1cm}
+        {\LARGE\textbf{Master of Technology Project Proposal}}
+
+        \vspace{2cm}
+        
+        \textbf{KAUSTABH GANGULY}
+
+        \vspace{0.5cm}
+        
+        \Large
+        Master of Technology in Artificial Intelligence \\
+        Indian Institute of Technology Madras
+
+        \vspace{2cm}
+
+        \begin{tabular}{rl}
+            \textbf{Roll Number:} & ch23m514 \\
+            \textbf{Email:} & \href{mailto:ch23m514@smail.iitm.ac.in}{ch23m514@smail.iitm.ac.in} \\
+            \textbf{Alternate Email:} & \href{mailto:kaustabhganguly@gmail.com}{kaustabhganguly@gmail.com} \\
+            \textbf{Website:} & \href{http://stabgan.com}{stabgan.com} \\
+        \end{tabular}
+        
+        \vfill
+        
+        \begin{tikzpicture}
+            \node[draw, circle, minimum size=4cm, inner sep=0pt] at (0,0) {\includegraphics[width=3.5cm]{logo.png}}; % Ensure this path is correct
+        \end{tikzpicture}
+        
+        \vspace{1cm}
+
+    \end{center}
+\end{titlepage}
+
+\section*{\textcolor{blue}{Abstract}}
+
+In the modern industrial landscape, ensuring the continuous operation of critical systems is paramount for maintaining operational efficiency and safety. Particularly in transportation sectors like metro trains, the Air Production Units (APUs) are crucial for sustaining air pressure and ensuring safe operations. The failure of these units can lead to significant disruptions and safety hazards. Despite advancements in predictive maintenance, current approaches struggle with high-dimensional, noisy sensor data, real-time decision-making, and providing actionable insights. This project aims to develop an advanced anomaly detection and failure prediction system using state-of-the-art machine learning techniques. The primary goals of this research are to enhance the robustness and adaptability of predictive maintenance systems, improve real-time processing capabilities, and deliver explainable insights for maintenance teams, ultimately driving reliability and safety in industrial applications.
+
+\section*{\textcolor{blue}{Current Work and Proposed Approach}}
+
+Existing predictive maintenance systems rely heavily on traditional statistical methods and simple machine learning algorithms, which are often inadequate in handling the complexity of modern industrial systems. These methods frequently fail to capture the nuanced patterns within high-dimensional sensor data, leading to missed or false positives in anomaly detection. Furthermore, the lack of explainability in many models poses a significant barrier to their adoption in critical industries, where maintenance teams require clear, actionable insights. To address these challenges, this project will leverage cutting-edge machine learning techniques, including deep learning and ensemble methods, to develop a more accurate and interpretable anomaly detection system. By using a dataset like MetroPT-3, which contains real-world data from metro train APUs, the project will focus on implementing advanced techniques like hierarchical attention mechanisms, multi-agent reinforcement learning, and hybrid physics-informed neural networks to enhance both prediction accuracy and explainability.
+
+\section*{\textcolor{blue}{Relevance to Industrial Applications and Areas for Improvement}}
+
+The development of a robust and adaptable anomaly detection system holds significant potential for improving operational efficiency and safety in various industrial sectors. In metro trains, for example, accurately predicting failures in APUs can prevent costly downtimes and ensure passenger safety. However, to achieve widespread adoption in industry, several areas require further improvement. Firstly, the integration of explainable AI into anomaly detection systems is crucial for gaining the trust of maintenance teams. Secondly, the ability to process and analyze high-dimensional data in real-time remains a challenge that must be addressed. Finally, the project will explore federated learning to enable multiple operators to collaboratively train models without compromising data privacy. By addressing these key areas, this project aims to deliver a solution that is not only technically advanced but also highly practical and valuable for industrial applications.
+
+\end{document}

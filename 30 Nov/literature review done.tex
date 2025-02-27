@@ -1,0 +1,357 @@
+\documentclass[12pt,a4paper]{report}
+
+% Encoding and Fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+
+% Packages for Mathematics and Symbols
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{bm}
+
+% Packages for Graphics and Figures
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.multipart, calc}
+\usepackage{pgfgantt}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% Packages for Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+}
+
+% Page Layout
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+
+% Header and Footer
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\setlength{\headheight}{26.98592pt}
+\fancyhead[L]{\leftmark}
+% \fancyhead[R]{\rightmark}
+\fancyfoot[C]{\thepage}
+
+% Section Formatting
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{blue}}
+  {\chaptername\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{0pt}{20pt}
+
+% Table of Contents Formatting
+\usepackage{tocloft}
+\renewcommand{\cftchapfont}{\bfseries}
+\renewcommand{\cftsecfont}{\bfseries}
+
+% Bibliography
+\usepackage{cite}
+
+% Package for Algorithms
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+% Package for Multirow in Tables
+\usepackage{multirow}
+
+% Package for Adjusting Table Columns
+\usepackage{array}
+
+% Document Information
+\title{\textbf{Hybrid Data Augmentation Techniques for Disease Identification from Clinical Notes}}
+\author{
+    \textbf{Kaustabh Ganguly} \\
+    Roll Number: CH23M514 \\
+    \\
+    \textbf{Mentors}: \\
+    Samyabrata Chakraborty \\
+    Debopam Nanda \\
+}
+\date{November 30, 2024}
+
+\begin{document}
+
+% Cover Page
+\begin{titlepage}
+    \centering
+    \includegraphics[width=4cm]{logo.png} \\
+    \vspace{0.5cm}
+    {\large \bfseries M.Tech Project Report\\
+    INDIAN INSTITUTE OF TECHNOLOGY MADRAS \\
+    CHENNAI -- 600036} \\
+    \vspace{1.5cm}
+    {\huge \bfseries Hybrid Data Augmentation Techniques for Disease Identification from Clinical Notes} \\
+    \vspace{2cm}
+    {\Large \textit{A Project Report}} \\
+    \vspace{0.5cm}
+    {\large Submitted by} \\
+    \vspace{0.5cm}
+    {\Large \bfseries Kaustabh Ganguly} \\
+    \vspace{0.5cm}
+    {\large For the award of the degree of} \\
+    \vspace{0.5cm}
+    {\Large \bfseries MASTER OF TECHNOLOGY} \\
+    \vspace{1.5cm}
+    {\large \bfseries November 2024} \\
+    \vfill
+    {\small \textcopyright~2023 Indian Institute of Technology Madras}
+\end{titlepage}
+
+% Thesis Certificate Page
+\newpage
+~\vfill
+\begin{center}
+    \textbf{Thesis Certificate}
+\end{center}
+\vspace{0.5in}
+This is to certify that the thesis titled \textit{``Hybrid Data Augmentation Techniques for Disease Identification from Clinical Notes''} submitted by \textbf{Kaustabh Ganguly}, Roll Number \textbf{CH23M514}, is a bona fide record of the work done under our guidance. \\
+
+\vspace{1in}
+
+\noindent \textbf{Mentors}: \\
+Samyabrata Chakraborty \hfill Signature: \\
+Debopam Nanda \hfill Signature: \\
+
+\vfill
+\newpage
+
+% Abstract
+\chapter*{Abstract}
+Accurately assigning \textbf{International Classification of Diseases (ICD)} codes to clinical narratives is essential for efficient healthcare operations, research, and patient care. However, this task is challenging, particularly for \textbf{rare diseases}, due to the scarcity of annotated clinical notes and data imbalance. This thesis addresses the problem of predicting ICD codes from clinical narratives, with a focus on improving accuracy for rare codes.
+
+Adopting a design thinking approach, we identified the needs of healthcare professionals and the limitations of existing systems. We propose a method that utilizes \textbf{Retrieval Augmented Generation (RAG)} to create synthetic clinical notes for rare diseases. By connecting RAG with medical knowledge bases, we generate realistic clinical narratives that augment the \textbf{MIMIC-IV} dataset, enriching the data available for rare ICD codes. This augmentation aims to balance the dataset and enhance the learning process of predictive models.
+
+In the initial phase, we established a robust development environment, implemented data version control, and explored extensive medical datasets and knowledge graphs. Preliminary experiments with traditional machine learning models highlighted the challenges posed by data imbalance and underscored the need for effective data augmentation.
+
+Our ongoing work involves integrating RAG with medical knowledge to generate synthetic data and employing transformer-based deep learning models to predict ICD codes. By augmenting the dataset with diverse clinical narratives, we anticipate a significant improvement in prediction accuracy for rare ICD codes.
+
+This research contributes to the field by addressing data scarcity in medical coding through innovative data augmentation techniques. The outcomes aim to enhance automated ICD coding systems, reduce the burden on healthcare professionals, and ultimately support better healthcare delivery.
+
+% Table of Contents
+\tableofcontents
+\newpage
+
+% Chapters
+
+\chapter{Literature Review}
+
+The automation of the International Classification of Diseases (ICD) coding process has emerged as a critical area of research in medical informatics and Natural Language Processing (NLP). The ICD is a globally recognized system used for classifying diseases and health conditions, essential for epidemiological studies, health management, and clinical billing. Manual ICD coding involves assigning appropriate codes to clinical narratives, a task that is both time-consuming and prone to errors due to the complexity and volume of medical records. The transition from ICD-9 to ICD-10 and now to ICD-11 has further increased the complexity, with a significant expansion in the number of codes and granularity \cite{who2019icd11}.
+
+\section{Early Approaches to Automated ICD Coding}
+
+Early approaches to automate ICD coding primarily relied on rule-based systems and traditional machine learning techniques. Rule-based methods utilized handcrafted rules, regular expressions, and keyword matching to map clinical terms to ICD codes \cite{farkas2008automatic, scheurwegs2017data}. While these approaches achieved high precision in specific contexts, they lacked scalability and adaptability to the extensive and evolving ICD code sets. The complexity and dynamic nature of classification systems, such as ICD-10-CM with around 68,000 diagnosis codes \cite{dong2022automated}, posed significant challenges for rule-based systems to cover all possible coding scenarios.
+
+Traditional machine learning methods, such as Support Vector Machines (SVMs) and Decision Trees, employed feature engineering to represent clinical texts numerically \cite{perotte2014diagnosis}. These methods often required extensive preprocessing and could not effectively capture the semantic richness of clinical narratives. Moreover, they struggled with high-dimensional and sparse data characteristic of clinical texts and did not generalize well to unseen or rare codes.
+
+\section{Deep Learning in Automated ICD Coding}
+
+The advent of deep learning has revolutionized NLP by enabling models to learn hierarchical and abstract representations of text data without extensive feature engineering \cite{lecun2015deep}. In the context of automated ICD coding, deep learning models have been employed to effectively capture complex patterns in clinical narratives and improve coding accuracy.
+
+\subsection{Convolutional and Recurrent Neural Networks}
+
+Convolutional Neural Networks (CNNs) have been applied to capture local syntactic and semantic patterns in text \cite{kim2014convolutional}. Mullenbach et al. \cite{mullenbach2018explainable} introduced the Convolutional Attention for Multi-Label classification (CAML) model, which employs a convolutional encoder followed by a label-wise attention mechanism. The attention mechanism allows the model to focus on relevant parts of the text for each ICD code, enhancing interpretability. The attention weights for each label $l$ are computed as:
+
+\begin{equation}
+\alpha^{(l)} = \text{softmax}(W^{(l)} h + b^{(l)}),
+\end{equation}
+
+where $h$ represents the hidden representations from the convolutional layers, and $W^{(l)}$, $b^{(l)}$ are the label-specific parameters.
+
+Building upon CAML, Li and Yu \cite{li2020multi} proposed the Multi-Filter Residual Convolutional Neural Network (MultiResCNN), which integrates residual connections and multiple convolutional filters to capture patterns at various granularities. The model enhances feature extraction and improves performance on the ICD coding task.
+
+Recurrent Neural Networks (RNNs), particularly Long Short-Term Memory (LSTM) networks, have been utilized to capture sequential dependencies in clinical texts \cite{hochreiter1997long}. Vu et al. \cite{vu2020label} introduced the Label-Attention model (LAAT), which employs a bidirectional LSTM encoder and a structured self-attention mechanism to generate label-specific document representations. The attention mechanism in LAAT is formulated as:
+
+\begin{equation}
+A = \text{softmax}(U \tanh(P H)),
+\end{equation}
+
+where $H$ is the sequence of hidden states from the bidirectional LSTM, $P$ is a projection matrix, and $U$ is a label embedding matrix. The label-specific representations are then used to predict the ICD codes.
+
+\subsection{Transformer-Based Models}
+
+Transformer-based models, such as BERT \cite{devlin2019bert}, have further advanced the field by enabling models to capture long-range dependencies and contextual information. However, an empirical observation is that current BERT-based approaches do not consistently achieve better performance than CNN-based methods for multi-label classification applied to clinical coding \cite{dong2022automated, gao2021limitations}. This limitation may be attributed to the inefficiency of BERT in modeling concept-level information and handling long clinical documents.
+
+Huang et al. \cite{huang2022plm} proposed the PLM-ICD model, which leverages pre-trained language models for the ICD coding task. The PLM-ICD model integrates a pre-trained BERT encoder with a label attention mechanism, allowing it to benefit from large-scale language pre-training and focus on relevant text segments for each code.
+
+Heo et al. \cite{heo2022medical} addressed the challenge of applying BERT to long clinical documents by introducing the Document-to-Sequence BERT (D2SBERT) model. D2SBERT divides lengthy discharge summaries into multiple sequences of fixed length and processes each sequence independently using BERT. They then apply a sequence attention mechanism to capture important information across these sequences for ICD code prediction. Their experiments on the MIMIC-III dataset demonstrated that D2SBERT outperforms previous models, including CNN-based methods, in predicting ICD codes.
+
+\subsection{Curriculum Learning and Hierarchical Models}
+
+Curriculum learning is a training strategy where models are exposed to training examples in a meaningful order, generally from easy to hard, to improve learning efficiency and performance \cite{bengio2009curriculum}. In the context of automated ICD coding, the hierarchical structure of ICD codes presents an opportunity to apply curriculum learning by leveraging the relationships among codes.
+
+Ren et al. \cite{ren2022hicu} introduced Hierarchical Curriculum Learning (HiCu), an algorithm that utilizes the hierarchical structure of ICD codes to create a curriculum for multi-label classification models. HiCu constructs a label tree from the ICD code hierarchy and trains the model in a sequence of rounds, each focusing on a different level of the hierarchy. At each round, the model learns to predict codes at a particular level before proceeding to more specific codes in the next level.
+
+The HiCu algorithm employs a knowledge transfer mechanism using hyperbolic embeddings to initialize model parameters for each level based on the parameters from the previous level. This approach ensures that the model builds upon previously learned representations, facilitating the learning of more complex and specific codes.
+
+By integrating curriculum learning with hierarchical knowledge, HiCu aims to improve model generalization, particularly for rare and less frequent codes. Their experiments on the MIMIC-III dataset showed that HiCu significantly improves predictive performance across different neural architectures, including CNNs, RNNs, and transformer-based models. The method resulted in higher macro-AUC and macro-F1 scores, indicating better performance on rare codes.
+
+HiCu addresses the challenge of data imbalance by emphasizing the hierarchical relationships among labels and gradually increasing the difficulty of the learning task. This method demonstrates the potential of curriculum learning and hierarchical modeling in enhancing automated ICD coding systems.
+
+\section{Challenges in Automated ICD Coding}
+
+Despite these advancements, automated ICD coding faces several significant challenges, as detailed by Dong et al. \cite{dong2022automated}, Edin et al. \cite{edin2023automated}, and Nguyen et al. \cite{nguyen2023mimic}.
+
+\subsection{Data Imbalance and Scarcity}
+
+One of the primary issues is data imbalance and scarcity, particularly for rare ICD codes. Clinical datasets exhibit a long-tailed distribution of codes, where a few codes are highly frequent, and many codes occur rarely. In the MIMIC-III dataset \cite{johnson2016mimic}, for example, around 5000 codes appear fewer than 10 times in the training data, and over 50\% of codes never appear \cite{rios2018few}. This imbalance leads to models that perform well on frequent codes but poorly on rare ones. Handling unseen, infrequent, and imbalanced labels is a key problem for multi-label classification with many labels.
+
+Edin et al. \cite{edin2023automated} conducted a critical review and replicability study, finding that models underperform on rare codes due to weak configurations, poorly sampled train-test splits, and insufficient evaluation. They corrected the calculation of the macro F1 score, which had been sub-optimally computed in previous studies due to the inclusion of codes missing from the test set. Their revised evaluation doubled the macro F1 scores and provided a more accurate assessment of model performance on rare codes.
+
+Nguyen et al. \cite{nguyen2023mimic} highlighted that MIMIC-IV includes both ICD-9 and ICD-10 codes, with significantly more documents and unique labels compared to MIMIC-III. They discussed the challenges posed by the long-tailed distribution of ICD codes in MIMIC-IV, where the majority of codes are rare. By evaluating existing methods under more extreme conditions with longer-tailed distributions and a higher number of ICD codes, they provided a more comprehensive assessment of model performance.
+
+Ren et al. \cite{ren2022hicu} addressed data imbalance by leveraging the hierarchical structure of ICD codes in a curriculum learning framework. By training models to predict codes at different levels of the hierarchy sequentially, their HiCu algorithm improves performance on rare codes, as demonstrated by higher macro-AUC and macro-F1 scores.
+
+\subsection{Processing Long and Complex Clinical Documents}
+
+Clinical narratives, such as discharge summaries, can be lengthy and contain redundant or irrelevant information, often referred to as "note bloat" \cite{wrenn2010quantifying}. Models may struggle to identify the relevant information for each code within such documents. However, Edin et al. \cite{edin2023automated} conducted an error analysis and found that document length had only a negligible impact on overall model performance, suggesting that other factors, such as code frequency, play a more significant role.
+
+Heo et al. \cite{heo2022medical} proposed D2SBERT to address the challenge of processing long clinical documents. By dividing documents into manageable sequences and applying a sequence attention mechanism, D2SBERT effectively captures important information across the entire document without truncating it. This approach allows transformer-based models to handle long texts and improves ICD code prediction accuracy.
+
+\subsection{Explainability and Interpretability}
+
+Explainability and interpretability are crucial in healthcare applications, as clinicians need to understand the rationale behind model predictions to trust and effectively use automated systems \cite{holzinger2017we}. While attention mechanisms provide some level of interpretability by highlighting relevant text segments, the highlighted texts mostly indicate associations instead of causality. Further studies are needed to evaluate the usefulness of highlights for clinical coders and to integrate more inherently explainable methods, such as incorporating symbolic representations of the coding steps with deep learning.
+
+Edin et al. \cite{edin2024unsupervised} proposed an unsupervised approach to achieve supervised-level explainability in healthcare records. They introduced adversarial robustness training to improve explanation plausibility and proposed a new explanation method, AttInGrad, which combines attention and gradient-based attributions. Their method produces explanations of comparable quality to supervised approaches without the need for costly evidence-span annotations.
+
+Ren et al. \cite{ren2022hicu} utilized hyperbolic embeddings and knowledge transfer mechanisms in their HiCu algorithm, which not only improves predictive performance but also provides insights into the hierarchical relationships among ICD codes. By structuring the learning process according to the ICD code hierarchy, their method enhances interpretability by aligning the model's learning trajectory with the established medical coding system.
+
+\section{Embedding Models and Clinical Semantic Search}
+
+The effectiveness of embedding models in medical semantic search tasks is critical for various applications, including document retrieval and information extraction. Excoffier et al. \cite{excoffier2024generalist} compared generalist embedding models with specialized clinical embedding models in a semantic search task using rephrased ICD-10-CM code descriptions. Their results showed that generalist models performed better than clinical models, suggesting that specialized models may be more sensitive to small changes in input that confuse them.
+
+The study highlighted that generalist models, trained on larger and more diverse datasets, may have a more robust language understanding, even in clinical contexts. This finding is significant because it challenges the assumption that domain-specific models always outperform generalist models in specialized tasks. It suggests that the training data's diversity and quantity play a crucial role in model robustness and performance.
+
+Heo et al. \cite{heo2022medical} demonstrated the effective use of BERT-based models in the clinical domain by adapting the model to handle long documents through sequence attention. Their approach shows that transformer-based models can be effectively applied to clinical text classification tasks when appropriately modified to address domain-specific challenges.
+
+\section{Integrating Knowledge-Based Methods and Synthetic Data Generation}
+
+To address the limitations of current deep learning approaches, integrating knowledge-based methods and symbolic reasoning has been proposed \cite{dong2022automated}. Knowledge graphs and medical ontologies, such as SNOMED CT, RxNorm, and UMLS, can provide structured semantic information that enhances data representation and captures relationships between medical concepts.
+
+Studies have explored embedding-based approaches to incorporate knowledge graphs into deep learning models \cite{teng2020explainable, xie2019ehr}. For example, Teng et al. \cite{teng2020explainable} utilized knowledge graphs to enhance the explainability and performance of ICD coding models by integrating semantic information from medical ontologies.
+
+Ren et al. \cite{ren2022hicu} employed hyperbolic embeddings to capture the hierarchical structure of ICD codes in their HiCu algorithm. Hyperbolic embeddings are effective in representing hierarchical data due to their ability to model tree-like structures in a continuous space with low distortion \cite{nickel2017poincare}. By incorporating hyperbolic embeddings, HiCu leverages the ICD code hierarchy to improve model performance and interpretability.
+
+Synthetic data generation has emerged as a promising approach to address data scarcity and imbalance in medical coding tasks. The generation of synthetic clinical notes can augment existing datasets, particularly for rare diseases, and enhance model performance.
+
+Kumichev et al. \cite{kumichev2024medsyn} introduced \textit{MedSyn}, a medical text generation framework that integrates large language models (LLMs) with a Medical Knowledge Graph (MKG). By sampling prior medical information from the MKG and generating synthetic clinical notes using GPT-4 and fine-tuned LLaMA models, they demonstrated that synthetic data could increase the classification accuracy of vital and challenging ICD codes by up to 17.8\% compared to settings without synthetic data.
+
+\section{What is done and what is pending}
+
+Automated ICD coding is a promising application of AI in healthcare, offering potential improvements in efficiency and accuracy of the coding process. However, significant challenges remain, including handling data imbalance, processing long and complex documents, integrating symbolic reasoning, and ensuring explainability. Combining deep learning with knowledge-based methods, curriculum learning, and synthetic data generation, as well as involving clinical coders in the development process, are critical steps toward addressing these challenges.
+
+Recent studies by Ren et al. \cite{ren2022hicu}, Heo et al. \cite{heo2022medical}, Edin et al. \cite{edin2023automated, edin2024unsupervised}, Nguyen et al. \cite{nguyen2023mimic}, and Excoffier et al. \cite{excoffier2024generalist} have emphasized the importance of innovative methodologies, standardized benchmarks, replicable experimental setups, and rigorous evaluation methods in automated ICD coding research. By addressing replicability issues, providing open-source code and data processing pipelines, and exploring novel data augmentation techniques, they facilitate fair comparisons and accelerate progress in the field.
+
+Future research should focus on developing models that effectively integrate domain knowledge, handle rare and unseen codes, and provide transparent and explainable predictions. The integration of curriculum learning, advanced transformer models adapted for long clinical documents, and synthetic data generation holds promise for addressing data scarcity and enhancing model performance. Additionally, leveraging generalist embedding models in clinical tasks may improve robustness and effectiveness in semantic search applications. By addressing the technical and organizational challenges, automated clinical coding systems can be developed and deployed to support coding in the next five years and beyond.
+
+\begin{thebibliography}{99}
+
+\bibitem{who2019icd11}
+World Health Organization. \textit{International Classification of Diseases 11th Revision (ICD-11)}. (2019).
+
+\bibitem{dong2022automated}
+Dong, H., Suárez-Paniagua, V., Whiteley, W., \& Wu, H. Automated clinical coding: what, why, and where we are? \textit{npj Digital Medicine} \textbf{5}, 159 (2022).
+
+\bibitem{edin2023automated}
+Edin, J., Jensen, S.M., Sahlgren, M., Lövgren, J., \& Henriksson, A. Automated medical coding on MIMIC-III and MIMIC-IV: a critical review and replicability study. In \textit{Proceedings of the 46th International ACM SIGIR Conference on Research and Development in Information Retrieval}, 2023.
+
+\bibitem{farkas2008automatic}
+Farkas, R. \& Szarvas, G. Automatic construction of rule-based ICD-9-CM coding systems. \textit{BMC Bioinformatics} \textbf{9}, 1–9 (2008).
+
+\bibitem{scheurwegs2017data}
+Scheurwegs, E. et al. Data integration of structured and unstructured sources for assigning clinical codes to patient stays. \textit{Journal of the American Medical Informatics Association} \textbf{24}, e68–e76 (2017).
+
+\bibitem{perotte2014diagnosis}
+Perotte, A. et al. Diagnosis code assignment: models and evaluation metrics. \textit{Journal of the American Medical Informatics Association} \textbf{21}, 231–237 (2014).
+
+\bibitem{lecun2015deep}
+LeCun, Y., Bengio, Y., \& Hinton, G. Deep learning. \textit{Nature} \textbf{521}, 436–444 (2015).
+
+\bibitem{kim2014convolutional}
+Kim, Y. Convolutional neural networks for sentence classification. In \textit{Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing (EMNLP)}, 1746–1751 (2014).
+
+\bibitem{mullenbach2018explainable}
+Mullenbach, J., Wiegreffe, S., Duke, J., Sun, J., \& Eisenstein, J. Explainable prediction of medical codes from clinical text. In \textit{Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics}, 1101–1111 (2018).
+
+\bibitem{li2020multi}
+Li, F. \& Yu, H. ICD coding from clinical text using multi-filter residual convolutional neural network. In \textit{Proceedings of the AAAI Conference on Artificial Intelligence}, vol. 34, 8180–8187 (2020).
+
+\bibitem{hochreiter1997long}
+Hochreiter, S. \& Schmidhuber, J. Long short-term memory. \textit{Neural Computation} \textbf{9}, 1735–1780 (1997).
+
+\bibitem{vu2020label}
+Vu, T., Nguyen, D. Q., \& Nguyen, A. A label attention model for ICD coding from clinical text. \textit{Journal of Biomedical Informatics} \textbf{102}, 103381 (2020).
+
+\bibitem{devlin2019bert}
+Devlin, J., Chang, M.-W., Lee, K., \& Toutanova, K. BERT: Pre-training of deep bidirectional transformers for language understanding. In \textit{Proceedings of NAACL-HLT}, 4171–4186 (2019).
+
+\bibitem{gao2021limitations}
+Gao, S. et al. Limitations of transformers on clinical text classification. \textit{IEEE Journal of Biomedical and Health Informatics} \textbf{25}, 3596–3607 (2021).
+
+\bibitem{huang2022plm}
+Huang, C.-W., Tsai, S.-C., \& Chen, Y.-N. PLM-ICD: Automatic ICD coding with pre-trained language models. In \textit{Proceedings of the 4th Clinical Natural Language Processing Workshop}, 10–20 (2022).
+
+\bibitem{heo2022medical}
+Heo, T.-S., Jo, B., Yoo, Y., Lee, K., Park, Y., \& Kim, K. Medical code prediction from discharge summary: Document to sequence BERT using sequence attention. In \textit{2022 International Conference on Electronics, Information, and Communication (ICEIC)}, 1–4 (2022).
+
+\bibitem{bengio2009curriculum}
+Bengio, Y., Louradour, J., Collobert, R., \& Weston, J. Curriculum learning. In \textit{Proceedings of the 26th Annual International Conference on Machine Learning}, 41–48 (2009).
+
+\bibitem{ren2022hicu}
+Ren, W., Zeng, R., Wu, T., Zhu, T., \& Krishnan, R. G. HiCu: Leveraging hierarchy for curriculum learning in automated ICD coding. In \textit{Proceedings of the Machine Learning for Healthcare Conference}, 1–24 (2022).
+
+\bibitem{johnson2016mimic}
+Johnson, A. E. W. et al. MIMIC-III, a freely accessible critical care database. \textit{Scientific Data} \textbf{3}, 160035 (2016).
+
+\bibitem{rios2018few}
+Rios, A. \& Kavuluru, R. Few-shot and zero-shot multi-label learning for structured label spaces. In \textit{Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing}, 3132–3142 (2018).
+
+\bibitem{wrenn2010quantifying}
+Wrenn, J. O., Stein, D. M., Bakken, S., \& Stetson, P. D. Quantifying clinical narrative redundancy in an electronic health record. \textit{Journal of the American Medical Informatics Association} \textbf{17}, 49–53 (2010).
+
+\bibitem{holzinger2017we}
+Holzinger, A. et al. What do we need to build explainable AI systems for the medical domain? \textit{arXiv preprint arXiv:1712.09923} (2017).
+
+\bibitem{edin2024unsupervised}
+Edin, J., Borgholt, L., Maistro, M., Havtorn, J. D., Maaløe, L., \& Ruotsalo, T. An unsupervised approach to achieve supervised-level explainability in healthcare records. \textit{arXiv preprint arXiv:2406.08958} (2024).
+
+\bibitem{teng2020explainable}
+Teng, F., Yang, W., Chen, L., Huang, L., \& Xu, Q. Explainable prediction of medical codes with knowledge graphs. \textit{Frontiers in Bioengineering and Biotechnology} \textbf{8}, 867 (2020).
+
+\bibitem{xie2019ehr}
+Xie, X., Xiong, Y., Yu, P. S., \& Zhu, Y. EHR coding with multi-scale feature attention and structured knowledge graph propagation. In \textit{Proceedings of the 28th ACM International Conference on Information and Knowledge Management}, 649–658 (2019).
+
+\bibitem{nickel2017poincare}
+Nickel, M. \& Kiela, D. Poincaré embeddings for learning hierarchical representations. In \textit{Advances in Neural Information Processing Systems}, 6338–6347 (2017).
+
+\bibitem{kumichev2024medsyn}
+Kumichev, G., Blinov, P., Kuzkina, Y., Goncharov, V., Zubkova, G., Zenovkin, N., Goncharov, A., \& Savchenko, A. MedSyn: LLM-based synthetic medical text generation framework. \textit{arXiv preprint arXiv:2408.02056} (2024).
+
+\bibitem{excoffier2024generalist}
+Excoffier, J.-B., Roehr, T., Figueroa, A., Papaioannou, J.-M., Bressem, K., \& Ortala, M. Generalist embedding models are better at short-context clinical semantic search than specialized embedding models. \textit{arXiv preprint arXiv:2401.01943} (2024).
+
+\bibitem{campbell2020computer}
+Campbell, S. \& Giadresco, K. Computer-assisted clinical coding: A narrative review of the literature on its benefits, limitations, implementation, and impact on clinical coding professionals. \textit{Health Information Management Journal} \textbf{49}, 5–18 (2020).
+
+\bibitem{kraljevic2021multi}
+Kraljevic, Z. et al. Multi-domain clinical natural language processing with MedCAT: The medical concept annotation toolkit. \textit{Artificial Intelligence in Medicine} \textbf{117}, 102083 (2021).
+
+\bibitem{gaebel2020changes}
+Gaebel, W., Stricker, J., \& Kerst, A. Changes from ICD-10 to ICD-11 and future directions in psychiatric classification. \textit{Dialogues in Clinical Neuroscience} \textbf{22}, 7–15 (2020).
+
+\bibitem{wang2021meta}
+Wang, R. et al. Meta-LMTC: Meta-learning for large-scale multi-label text classification. In \textit{Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing}, 8633–8646 (2021).
+
+\bibitem{nguyen2023mimic}
+Nguyen, T.-T., Schlegel, V., Kashyap, A., Winkler, S., Huang, S.-S., Liu, J.-J., \& Lin, C.-J. MIMIC-IV-ICD: A New Benchmark for Extreme Multi-Label Classification. In \textit{Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics}, 2023.
+
+\end{thebibliography}
+
+\end{document}

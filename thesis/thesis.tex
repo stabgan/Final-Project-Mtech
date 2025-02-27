@@ -1,0 +1,70 @@
+\documentclass[
+    mtech,
+    smplmath,12pt,a4paper
+]{iitmdissertation}
+
+
+% ----------------------------------------
+%           PACKAGE IMPORTS
+% ----------------------------------------
+\usepackage{graphicx}   % for figures
+\usepackage{amsmath}    % for math
+\usepackage{hyperref}   % for links
+\usepackage{multirow}   % for multi-row tables
+% \usepackage[table]{xcolor} % only if you actually use colored tables
+\setupGlossaryAbbreviationsDefinitions
+% ----------------------------------------
+%          METADATA (Cover Info)
+% ----------------------------------------
+\dissertationDepartment      {Department of Chemical Engineering}
+\dissertationAuthorName      {Kaustabh Ganguly}
+\dissertationDegree          {Master of Technology}
+\dissertationTitle           {Hybrid Data Augmentation Techniques for Disease Identification from Clinical Notes}
+\dissertationMonth           {February}
+\dissertationYear            {2025}
+\dissertationCertificateDate {February 2025}
+\dissertationType            {Project Report}
+\dissertationGuides{
+    Mr. Samyabrata Chakraborty (Lead Solution Architect \& Head of Centre of Excellence, TCS),
+    Mr. Debopam Nanda (Lead Data Scientist, TCS)
+}
+\dissertationCommitteeName   {Examination Committee}
+\dissertationImage           {images/iitm-logo.png}
+
+\begin{document}
+    
+    % ---------------------------------------
+    %          PREMATTER
+    % ---------------------------------------
+    \prematter
+    
+        \input{0-prematter/pre-quote.tex}
+        \input{0-prematter/pre-dedication.tex}
+        \printCertificate
+
+    % ---------------------------------------
+    %          FRONT MATTER
+    % ---------------------------------------
+      \begin{FrontMatter}
+      \printGlossaryAndAbbreviations
+      \printNotation
+  \end{FrontMatter}
+
+    % ---------------------------------------
+    %          MAIN MATTER
+    % ---------------------------------------
+    %\begin{MainMatter}
+    %    \input{2-mainmatter/chapters/chap-introduction.tex}
+    %    ...
+    %\end{MainMatter}
+
+    % ---------------------------------------
+    %          BACK MATTER
+    % ---------------------------------------
+    \begin{BackMatter}
+        % If using BibTeX:
+        % \bibliographystyle{iitm}
+        % \bibliography{references/references}
+    \end{BackMatter}
+
+\end{document}

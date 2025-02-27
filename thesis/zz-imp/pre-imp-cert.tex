@@ -1,0 +1,33 @@
+\chapter*{Thesis Certificate}
+This is to undertake that the \asserttoken{dissertationType}{Whatever} titled
+{\bfseries\MakeUppercase{\asserttoken{dissertationTitle}{Whatever Title}}},
+submitted by me to the Indian Institute of Technology Madras, for the award of
+{\bfseries\asserttoken{dissertationDegree}{Whatever Degree}}, is a bona fide
+record of the research work done by me under the supervision of
+{\bfseries\asserttoken{dissertationGuides}{Whoever Guides}}.
+
+\par
+
+\vspace{1.5\parskip} % Smaller than 3\parskip
+\begin{tabular}{@{} >{\bfseries}p{0.48\textwidth} >{\bfseries\raggedleft}p{0.48\textwidth} @{}}
+\begin{tabular}[t]{@{} p{0.48\textwidth} @{}}
+Chennai 600036 \newline
+Date:  {\bfseries \asserttoken{dissertationCertificateDate}{01 January 2022}}
+\end{tabular}
+    &
+\asserttoken{dissertationAuthorName}{Firstname Lastname} \tabularnewline
+\end{tabular}
+
+% If you still want your guides in flushright, keep them:
+\input 0-prematter/pre-cert-guides
+
+\vspace*{\fill}  % final fill if there's space
+\begin{center}
+{\footnotesize
+  \textcopyright\
+  \asserttoken{dissertationYear}{2025}\
+  Indian Institute of Technology Madras
+}
+\end{center}
+
+\newpage

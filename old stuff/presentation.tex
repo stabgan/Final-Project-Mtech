@@ -1,0 +1,223 @@
+\documentclass{beamer}
+
+% Theme and color theme
+\usetheme{Madrid}
+\usecolortheme{dolphin}
+
+% Packages
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{pgfgantt}
+\usepackage{pgfplots}
+\usepackage{multicol}
+
+% Title, author, etc.
+\title[Hybrid Data Augmentation and xAI]{Hybrid Data Augmentation and Explainable AI for ICD Code Prediction}
+\author[Kaustabh Ganguly]{Kaustabh Ganguly \\ Roll Number: CH23M514}
+\institute{}
+\date{September 22, 2024}
+
+\begin{document}
+
+% Title slide
+\begin{frame}
+    \titlepage
+\end{frame}
+
+% Slide 1: Project Summary
+\begin{frame}{Project Summary}
+    \begin{itemize}
+        \item \textbf{Problem:} Manual ICD code annotation is labor-intensive and error-prone.
+        \item \textbf{Goal:} Accurately predict ICD codes from clinical narratives, focusing on rare codes.
+        \item \textbf{Approach:}
+        \begin{itemize}
+            \item Extract medical entities from clinical text.
+            \item Map entities to ontologies like SNOMED CT and RxNorm.
+            \item Use transformer-based models for embeddings.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+% Slide 2: Project Summary (continued)
+\begin{frame}{Project Summary (continued)}
+    \begin{itemize}
+        \item \textbf{Hybrid Data Augmentation Strategy:}
+        \begin{itemize}
+            \item Combines Retrieval Augmented Generation (RAG) with ontology-based techniques.
+            \item Enrich ICD code descriptions using external sources (PubMed, Wikipedia, WHO API).
+        \end{itemize}
+        \item \textbf{Generate Synthetic Clinical Notes:}
+        \begin{itemize}
+            \item Use generative models (GANs) for rare ICD codes.
+            \item Incorporate entities from RxNorm, SNOMED CT, and other ontologies.
+        \end{itemize}
+        \item \textbf{Leverage Knowledge Graphs:}
+        \begin{itemize}
+            \item Construct knowledge graphs from medical ontologies.
+            \item Capture complex relationships between medical entities.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+% Slide 3: Objectives (1)
+\begin{frame}{Objectives}
+    \begin{enumerate}
+        \item Develop transformer-based model mapping clinical text embeddings to enriched ICD code embeddings.
+        \item Implement hybrid data augmentation combining RAG with ontology-based methods.
+        \item Leverage knowledge graphs and ontologies (SNOMED CT, RxNorm, ICD-10-CM).
+        \item Employ advanced classification techniques:
+        \begin{itemize}
+            \item Label embedding
+            \item Hierarchical classification
+            \item Label grouping
+        \end{itemize}
+    \end{enumerate}
+\end{frame}
+
+% Slide 4: Objectives (continued)
+\begin{frame}{Objectives (continued)}
+    \begin{enumerate}
+        \setcounter{enumi}{4}
+        \item Integrate explainability techniques:
+        \begin{itemize}
+            \item SHAP
+            \item LIME
+            \item Integrated Gradients
+        \end{itemize}
+        \item Achieve significant improvement in evaluation metrics (e.g., 10\% increase in macro F2-score on rare ICD codes).
+        \item Develop open-source toolkit automating ICD coding process.
+    \end{enumerate}
+\end{frame}
+
+% Slide 5: Literature Survey
+\begin{frame}{Literature Survey}
+    \begin{itemize}
+        \item \textbf{Transformer-based models} (BERT, BioBERT, ClinicalBERT) improved ICD coding.
+        \item \textbf{Challenges} remain in predicting rare ICD codes due to data scarcity.
+        \item \textbf{Data augmentation techniques} explored:
+        \begin{itemize}
+            \item GANs for synthetic clinical notes (Wang et al.)
+            \item Retrieval Augmented Generation (RAG)
+        \end{itemize}
+        \item \textbf{Integration of knowledge graphs} from ontologies enhances models.
+        \item \textbf{Explainable AI (XAI)} techniques (SHAP, LIME, Integrated Gradients) important for clinician trust.
+        \item \textbf{Gaps} in combining RAG, knowledge graphs, and XAI.
+        \item Our project aims to \textbf{bridge these gaps}.
+    \end{itemize}
+\end{frame}
+
+% Slide 6: Datasets
+\begin{frame}{Datasets}
+    \begin{itemize}
+        \item \textbf{Primary Datasets:}
+        \begin{itemize}
+            \item \textbf{MIMIC-IV Clinical Database}
+            \begin{itemize}
+                \item Over 40,000 patient records with clinical notes linked to ICD codes.
+            \end{itemize}
+            \item \textbf{eICU Collaborative Research Database}
+            \item \textbf{Jon Snow Labs Synthetic Data}
+        \end{itemize}
+        \item \textbf{Additional Resources:}
+        \begin{itemize}
+            \item WHO API for ICD-10-CM codes and information.
+            \item External medical literature (PubMed, Wikipedia).
+        \end{itemize}
+        \item \textbf{Ethical Considerations:}
+        \begin{itemize}
+            \item Compliance with data use agreements.
+            \item Ensuring patient privacy and data security.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+% Slide 7: Workplan
+\begin{frame}{Workplan}
+    \begin{itemize}
+        \item \textbf{Phase 1: Data Preparation (Months 1-3)}
+        \begin{itemize}
+            \item Data acquisition and preprocessing
+            \item Entity extraction and ontology mapping
+            \item Knowledge graph construction
+        \end{itemize}
+        \item \textbf{Phase 2: Model Development and Evaluation (Months 4-7)}
+        \begin{itemize}
+            \item Hybrid data augmentation
+            \item Model architecture design
+            \item Multi-label classification handling
+            \item Model training and validation
+            \item Performance evaluation
+        \end{itemize}
+        \item \textbf{Phase 3: Explainability Integration (Months 7-9)}
+        \begin{itemize}
+            \item Integrate explainability tools
+            \item Develop visualizations
+        \end{itemize}
+        \item \textbf{Phase 4: Deployment \& Dissemination (Months 8-9)}
+        \begin{itemize}
+            \item Toolkit development
+            \item Documentation
+            \item Final reporting
+        \end{itemize}
+        \item \textbf{Phase 5: Human-in-the-Loop System (Months 10-11)}
+        \begin{itemize}
+            \item Interface for clinicians
+            \item Framework for feedback integration
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+% Slide 8: Expected Deliverables and Implementation Arrangements
+\begin{frame}{Expected Deliverables and Implementation Arrangements}
+    \begin{itemize}
+        \item \textbf{Expected Deliverables:}
+        \begin{itemize}
+            \item Advanced, explainable ICD code prediction model.
+            \item Enriched ICD code embeddings.
+            \item Open-source toolkit (data pipelines, model code, synthetic data generation).
+            \item Detailed experimental records.
+            \item Enhanced model interpretability for clinician trust.
+            \item Framework for human-in-the-loop integration.
+        \end{itemize}
+        \item \textbf{Implementation Arrangements:}
+        \begin{itemize}
+            \item Guided by mentors Samyabrata Chakraborty and Debopam Nanda.
+            \item Collaboration with clinicians for domain expertise.
+            \item Regular bi-weekly meetings with healthcare professionals.
+            \item Agile methodology with two-week sprints.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+% Slide 9: Resource Requirements
+\begin{frame}{Resource Requirements}
+    \begin{itemize}
+        \item \textbf{Hardware:}
+        \begin{itemize}
+            \item Google Colab Pro for initial experiments.
+            \item AWS/GCP credits for scalable training.
+            \item Local machine: 32GB RAM, NVIDIA RTX 3060 GPU, 2TB storage.
+        \end{itemize}
+        \item \textbf{Software:}
+        \begin{itemize}
+            \item Open-source tools: Python, PyTorch/TensorFlow, Hugging Face Transformers.
+            \item Explainability tools: SHAP, LIME.
+            \item Entity linking tools: cTAKES, MedSpaCy, MedCat.
+        \end{itemize}
+        \item \textbf{Data Access:}
+        \begin{itemize}
+            \item MIMIC-IV database, eICU Collaborative Research Database.
+            \item Medical ontologies: SNOMED CT, RxNorm, ICD-10-CM (WHO API).
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+% Slide 10: Thank You
+\begin{frame}
+    \centering
+    \Huge{Thank You!}
+\end{frame}
+
+\end{document}

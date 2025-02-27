@@ -1,0 +1,415 @@
+\documentclass[12pt, a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{url}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{tikz}
+\geometry{margin=1in}
+\setstretch{1.5}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small Synthetic Clinical Text Generation}
+\rhead{\small \thepage}
+\cfoot{}
+
+% Begin Document
+\begin{document}
+
+% Title Page
+\begin{center}
+    {\Large \textbf{Generation of Synthetic Clinical Texts for ICD-10-CM Code Prediction Using Large Language Models and Knowledge Graphs}}\\[1.5cm]
+    {\large Author Name}\\
+    {\large Date: \today}
+\end{center}
+
+\vspace{1.5cm}
+
+\begin{abstract}
+The prediction of International Classification of Diseases, 10th Revision, Clinical Modification (ICD-10-CM) codes from clinical narratives is a pivotal task in healthcare informatics, essential for billing, epidemiology, and clinical decision support. However, the vast number of codes and the scarcity of data for rare codes present significant challenges. This document outlines a comprehensive methodology for generating synthetic clinical texts using Large Language Models (LLMs) augmented with Medical Knowledge Graphs (MKGs). By leveraging resources such as the Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM) vocabularies, SNOMED CT, RxNorm, the Unified Medical Language System (UMLS), Human Phenotype Ontology (HPO), MONDO Disease Ontology, and various biomedical literature sources, we aim to create realistic and diverse clinical narratives that cover both common and rare ICD-10-CM codes. The synthetic data generated will enhance the training dataset for machine learning models, improving their ability to predict ICD codes accurately. This document delves into the detailed steps of the methodology, including data preparation, knowledge integration, synthetic text generation, and addresses key considerations to ensure the medical plausibility and utility of the generated texts.
+\end{abstract}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+
+The healthcare industry relies heavily on accurate documentation of patient encounters, which involves the assignment of standardized codes to diagnoses and procedures. The ICD-10-CM coding system is one such standard, encompassing over 70,000 codes that capture a wide array of medical conditions. Predicting these codes from unstructured clinical text is a complex task due to the diversity of language used by clinicians and the imbalance in code frequencies, especially for rare conditions. Traditional supervised learning approaches require large amounts of labeled data, which are often unavailable for rare codes.
+
+To address this challenge, we propose a methodology that involves generating synthetic clinical texts using advanced Large Language Models (LLMs) integrated with rich Medical Knowledge Graphs (MKGs). This approach aims to augment existing datasets with high-quality, diverse clinical narratives that cover a broad spectrum of ICD-10-CM codes, thereby improving the performance of predictive models, especially for rare codes. By utilizing resources like the Observational Medical Outcomes Partnership (OMOP) Common Data Model (CDM) vocabularies, SNOMED CT, RxNorm, UMLS, Human Phenotype Ontology (HPO), MONDO Disease Ontology, and other relevant data, we ensure that the generated texts are medically accurate and plausible.
+
+In this document, we present a detailed exploration of the steps involved in this methodology, including data preparation, knowledge integration, synthetic text generation, and considerations for ensuring the quality and applicability of the generated data. We also discuss how this synthetic data can be utilized to train machine learning models for ICD-10-CM code prediction.
+
+\section{Methodology}
+
+Our methodology is designed to generate synthetic clinical texts that are medically accurate and cover a wide range of ICD-10-CM codes, particularly focusing on rare codes. The approach involves several key steps:
+
+\subsection{Data Collection and Preparation}
+
+The first step involves collecting and preparing data from various biomedical resources to build a comprehensive knowledge base.
+
+\subsubsection{Utilizing the OMOP Common Data Model (CDM) Vocabularies}
+
+The OMOP CDM provides a standardized representation of healthcare data, including a rich set of vocabularies that are essential for integrating diverse medical terminologies. The vocabularies you've downloaded include mappings between various coding systems, which are invaluable for building a comprehensive knowledge graph.
+
+\paragraph{Available Vocabularies}
+
+The vocabularies you have include:
+
+\begin{itemize}
+    \item \textbf{SNOMED CT}: Systematized Nomenclature of Medicine -- Clinical Terms
+    \item \textbf{ICD9CM} and \textbf{ICD10CM}: International Classification of Diseases, 9th and 10th Revision, Clinical Modification
+    \item \textbf{CPT4}: Current Procedural Terminology version 4
+    \item \textbf{HCPCS}: Healthcare Common Procedure Coding System
+    \item \textbf{LOINC}: Logical Observation Identifiers Names and Codes
+    \item \textbf{RxNorm} and \textbf{RxNorm Extension}
+    \item \textbf{NDC}: National Drug Code
+    \item \textbf{ATC}: WHO Anatomical Therapeutic Chemical Classification
+    \item \textbf{Gender}, \textbf{Race}, \textbf{Ethnicity}: OMOP standard demographics
+    \item \textbf{Other Vocabularies}: NUCC, SPL, Currency, etc.
+\end{itemize}
+
+\paragraph{Data Files}
+
+The OMOP vocabulary files you've downloaded include:
+
+\begin{itemize}
+    \item \texttt{CONCEPT.csv}
+    \item \texttt{CONCEPT\_ANCESTOR.csv}
+    \item \texttt{CONCEPT\_RELATIONSHIP.csv}
+    \item \texttt{CONCEPT\_SYNONYM.csv}
+    \item \texttt{CONCEPT\_CLASS.csv}
+    \item \texttt{RELATIONSHIP.csv}
+    \item \texttt{DRUG\_STRENGTH.csv}
+    \item \texttt{DOMAIN.csv}
+    \item \texttt{VOCABULARY.csv}
+\end{itemize}
+
+These files are a gold mine for building a comprehensive medical knowledge graph.
+
+\subsubsection{Loading and Processing OMOP Vocabulary Data}
+
+We will use these OMOP vocabulary files to build our knowledge base.
+
+\paragraph{Loading Data into Pandas DataFrames}
+
+First, we load the CSV files into Pandas DataFrames for processing.
+
+\begin{lstlisting}[language=Python]
+import pandas as pd
+
+# Load OMOP vocabulary files
+concept_df = pd.read_csv('CONCEPT.csv', sep='\t', dtype=str)
+concept_relationship_df = pd.read_csv('CONCEPT_RELATIONSHIP.csv', sep='\t', dtype=str)
+concept_ancestor_df = pd.read_csv('CONCEPT_ANCESTOR.csv', sep='\t', dtype=str)
+concept_synonym_df = pd.read_csv('CONCEPT_SYNONYM.csv', sep='\t', dtype=str)
+concept_class_df = pd.read_csv('CONCEPT_CLASS.csv', sep='\t', dtype=str)
+relationship_df = pd.read_csv('RELATIONSHIP.csv', sep='\t', dtype=str)
+domain_df = pd.read_csv('DOMAIN.csv', sep='\t', dtype=str)
+vocabulary_df = pd.read_csv('VOCABULARY.csv', sep='\t', dtype=str)
+\end{lstlisting}
+
+\paragraph{Understanding the Data Structures}
+
+The key columns in \texttt{CONCEPT.csv} include:
+
+\begin{itemize}
+    \item \texttt{concept\_id}: A unique identifier for each concept.
+    \item \texttt{concept\_name}: The name of the concept.
+    \item \texttt{domain\_id}: The domain to which the concept belongs (e.g., Condition, Drug).
+    \item \texttt{vocabulary\_id}: The source vocabulary (e.g., SNOMED, ICD10CM).
+    \item \texttt{concept\_class\_id}: The class of the concept.
+    \item \texttt{standard\_concept}: Indicates if the concept is a standard concept.
+    \item \texttt{concept\_code}: The code of the concept in the source vocabulary.
+\end{itemize}
+
+\paragraph{Building Mappings Between Coding Systems}
+
+We can build mappings between different coding systems using the relationships provided.
+
+\begin{lstlisting}[language=Python]
+# Filter concept_relationships for 'Maps to' relationships
+maps_to_relationships = concept_relationship_df[
+    concept_relationship_df['relationship_id'] == 'Maps to'
+]
+
+# Merge to get source and target concept details
+mapped_concepts = maps_to_relationships.merge(
+    concept_df[['concept_id', 'concept_name', 'vocabulary_id', 'concept_code']],
+    left_on='concept_id_1',
+    right_on='concept_id',
+    suffixes=('_source', '_target')
+).merge(
+    concept_df[['concept_id', 'concept_name', 'vocabulary_id', 'concept_code']],
+    left_on='concept_id_2',
+    right_on='concept_id',
+    suffixes=('_source', '_target')
+)
+
+# Now we have mappings between source and target concepts
+\end{lstlisting}
+
+\paragraph{Example: Mapping ICD-10-CM Codes to SNOMED CT Concepts}
+
+\begin{lstlisting}[language=Python]
+# Filter mappings where source is ICD-10-CM and target is SNOMED
+icd10cm_to_snomed = mapped_concepts[
+    (mapped_concepts['vocabulary_id_source'] == 'ICD10CM') &
+    (mapped_concepts['vocabulary_id_target'] == 'SNOMED')
+]
+
+# Select relevant columns
+icd10cm_to_snomed = icd10cm_to_snomed[[
+    'concept_code_source', 'concept_name_source',
+    'concept_code_target', 'concept_name_target'
+]]
+\end{lstlisting}
+
+\paragraph{Creating the Knowledge Graph}
+
+We can now use this mapping to create edges in our knowledge graph.
+
+\begin{lstlisting}[language=Python]
+# Continue using Neo4j
+from neo4j import GraphDatabase
+
+driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "password"))
+
+def create_concept(tx, concept_id, concept_name, vocabulary_id):
+    tx.run("""
+        MERGE (c:Concept {id: $concept_id})
+        SET c.name = $concept_name, c.vocabulary = $vocabulary_id
+        """, concept_id=concept_id, concept_name=concept_name, vocabulary_id=vocabulary_id)
+
+def create_relationship(tx, source_id, target_id, relationship_type):
+    tx.run("""
+        MATCH (a:Concept {id: $source_id}), (b:Concept {id: $target_id})
+        MERGE (a)-[r:RELATIONSHIP {type: $relationship_type}]->(b)
+        """, source_id=source_id, target_id=target_id, relationship_type=relationship_type)
+
+with driver.session() as session:
+    # Create concepts
+    for idx, row in concept_df.iterrows():
+        session.write_transaction(
+            create_concept,
+            concept_id=row['concept_id'],
+            concept_name=row['concept_name'],
+            vocabulary_id=row['vocabulary_id']
+        )
+
+    # Create relationships
+    for idx, row in concept_relationship_df.iterrows():
+        session.write_transaction(
+            create_relationship,
+            source_id=row['concept_id_1'],
+            target_id=row['concept_id_2'],
+            relationship_type=row['relationship_id']
+        )
+\end{lstlisting}
+
+\paragraph{Incorporating Other Vocabularies}
+
+Repeat similar steps to incorporate other vocabularies like LOINC, RxNorm, etc.
+
+\subsubsection{Integrating Additional Ontologies and Databases}
+
+Beyond the OMOP vocabularies, we also utilize:
+
+\begin{itemize}
+    \item \textbf{Human Phenotype Ontology (HPO)}
+    \item \textbf{MONDO Disease Ontology}
+    \item \textbf{Online Mendelian Inheritance in Man (OMIM)}
+\end{itemize}
+
+Follow the steps outlined in the previous methodology to download, parse, and integrate these ontologies into the knowledge graph.
+
+\subsubsection{Integrating Biomedical Literature}
+
+As before, we download and parse PubMed Open Access articles, generate embeddings, and index them using FAISS for efficient retrieval.
+
+\subsection{Retrieval-Augmented Generation (RAG) Pipeline}
+
+We develop a RAG pipeline to generate synthetic clinical texts using LLMs, guided by retrieved information from the knowledge base.
+
+\subsubsection{Information Retrieval from OMOP Vocabulary}
+
+When generating clinical texts, we can now leverage the rich mappings and relationships from the OMOP vocabulary.
+
+\paragraph{Retrieving Standard Concepts and Synonyms}
+
+\begin{lstlisting}[language=Python]
+def get_concept_synonyms(concept_id):
+    synonyms = concept_synonym_df[
+        concept_synonym_df['concept_id'] == concept_id
+    ]['concept_synonym_name'].tolist()
+    return synonyms
+
+def get_concept_details(concept_code, vocabulary_id):
+    concept = concept_df[
+        (concept_df['concept_code'] == concept_code) &
+        (concept_df['vocabulary_id'] == vocabulary_id)
+    ]
+    if not concept.empty:
+        concept_id = concept.iloc[0]['concept_id']
+        concept_name = concept.iloc[0]['concept_name']
+        synonyms = get_concept_synonyms(concept_id)
+        return {
+            'concept_id': concept_id,
+            'concept_name': concept_name,
+            'synonyms': synonyms
+        }
+    else:
+        return None
+\end{lstlisting}
+
+\paragraph{Example: Retrieving Information for ICD-10-CM Code}
+
+\begin{lstlisting}[language=Python]
+# Get details for ICD-10-CM code E11.9
+icd_code = 'E11.9'
+vocabulary_id = 'ICD10CM'
+concept_details = get_concept_details(icd_code, vocabulary_id)
+
+# Now we have the concept_id, concept_name, and synonyms
+\end{lstlisting}
+
+\subsubsection{Enhanced Prompt Construction}
+
+We incorporate more detailed information into the prompts.
+
+\paragraph{Prompt Template}
+
+\begin{lstlisting}
+You are a medical professional writing a clinical note.
+
+Patient Information:
+- Age: {age}
+- Gender: {gender}
+- Diagnoses: {diagnoses} (including concept synonyms: {synonyms})
+- Phenotypes/Symptoms: {phenotypes}
+- Medications: {medications}
+- Relevant Findings: {findings}
+
+Compose a detailed clinical note based on the above information.
+\end{lstlisting}
+
+\subsubsection{Generating Synthetic Clinical Texts}
+
+We use the enhanced prompts to generate clinical texts with richer content.
+
+\subsection{Validation and Quality Assurance}
+
+We implement validation steps to ensure the generated texts are medically accurate and consistent with the input data.
+
+\paragraph{Automated Validation Using OMOP Vocabulary}
+
+We can use the OMOP vocabulary to validate the presence of expected concepts in the generated text.
+
+\begin{lstlisting}[language=Python]
+from medspacy.ner import NER
+
+# Use a medical NER tool to extract concepts
+def extract_concepts(text):
+    # Implement concept extraction using a suitable NER model
+    # For example, using spaCy with a medical model
+    doc = nlp(text)
+    concepts = [ent.text for ent in doc.ents]
+    return concepts
+
+# Validate concepts
+def validate_generated_text(text, expected_concepts):
+    extracted_concepts = extract_concepts(text)
+    missing_concepts = set(expected_concepts) - set(extracted_concepts)
+    if missing_concepts:
+        return False, missing_concepts
+    return True, None
+\end{lstlisting}
+
+\subsection{Version Control and Reproducibility}
+
+We use Git for code versioning and DVC for data versioning, ensuring all stages of the project are reproducible.
+
+\begin{itemize}
+    \item \textbf{Git}: Track code changes.
+    \item \textbf{DVC}: Track datasets and large files (e.g., OMOP vocabulary files, models).
+\end{itemize}
+
+\subsection{Example Workflow}
+
+\subsubsection{Generating a Clinical Note Using OMOP Vocabulary}
+
+\paragraph{Step 1: Input ICD-10-CM Code}
+
+\begin{itemize}
+    \item \textbf{ICD-10-CM Code E11.9}: Type 2 diabetes mellitus without complications
+\end{itemize}
+
+\paragraph{Step 2: Retrieve Information}
+
+\begin{itemize}
+    \item \textbf{Concept Details}: Retrieved from \texttt{CONCEPT.csv}
+    \item \textbf{Synonyms}: Retrieved from \texttt{CONCEPT\_SYNONYM.csv}
+    \item \textbf{Mapped Concepts}: Find mappings to SNOMED CT concepts
+    \item \textbf{Phenotypes}: Retrieve associated symptoms from HPO
+    \item \textbf{Medications}: Retrieve standard treatments from RxNorm via OMOP
+\end{itemize}
+
+\paragraph{Step 3: Construct Prompt}
+
+Include all retrieved information, ensuring that synonyms and mapped concepts enrich the context.
+
+\paragraph{Step 4: Generate Clinical Text}
+
+Use the LLM to generate the clinical note based on the enhanced prompt.
+
+\paragraph{Step 5: Validate and Refine}
+
+Use automated validation to check for the inclusion of expected concepts, and refine the prompt or model as necessary.
+
+\section{Considerations and Challenges}
+
+\subsection{Handling Large Datasets}
+
+The OMOP vocabulary files are large (several gigabytes). Efficient data processing techniques are necessary.
+
+\begin{itemize}
+    \item Use appropriate data types to optimize memory usage.
+    \item Utilize efficient data storage formats (e.g., Apache Parquet) if necessary.
+    \item Leverage parallel processing where possible.
+\end{itemize}
+
+\subsection{Data Licensing and Compliance}
+
+Ensure compliance with licensing agreements for OMOP vocabularies and other resources.
+
+\subsection{Data Quality and Consistency}
+
+Implement robust data cleaning and normalization procedures.
+
+\subsection{Model Limitations and Ethical Considerations}
+
+Be mindful of the limitations of LLMs and ensure that generated texts do not include any sensitive or proprietary information.
+
+\end{document}

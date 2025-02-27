@@ -1,0 +1,578 @@
+\documentclass[12pt, a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{natbib}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{url}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{mathrsfs}
+\geometry{margin=1in}
+\setstretch{1.25}
+
+% Begin Document
+\begin{document}
+
+% Title Page
+\begin{center}
+    \Large{\textbf{Comprehensive Strategy for Synthetic Clinical Note Generation and ICD-10-CM Code Prediction}}\\[1cm]
+    \large{Author Name}\\
+    \large{Date: \today}
+\end{center}
+
+\vspace{1cm}
+
+\begin{abstract}
+The accurate prediction of International Classification of Diseases, 10th Revision, Clinical Modification (ICD-10-CM) codes from clinical text is a critical task in healthcare informatics. This document outlines a comprehensive strategy to develop a robust system capable of handling multi-label, multi-class classification for ICD codes, with a special focus on rare codes that suffer from limited data availability. The proposed approach involves generating synthetic clinical notes using Large Language Models (LLMs) integrated with Medical Knowledge Graphs (MKGs). By leveraging resources such as UMLS, SNOMED CT, RxNorm, MIMIC-IV, and pre-built knowledge graphs like PrimeKG, the Clinical Knowledge Graph (CKG), Drug Repurposing Knowledge Graph (DRKG), and Clinical Trials Knowledge Graph (CTKG), the system aims to enhance the quality and diversity of training data. The plan incorporates advanced techniques like Retrieval-Augmented Generation (RAG) and utilizes state-of-the-art tools and libraries such as LangChain, Neo4j, PyKEEN, and pre-trained models like ClinicalBERT and PubMedBERT. This document details the high-level plan, the phases involved, implementation considerations, and the mathematical concepts underpinning the strategy.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+The accurate prediction of International Classification of Diseases, 10th Revision, Clinical Modification (ICD-10-CM) codes from clinical text is a critical task in healthcare informatics. Accurate coding ensures proper billing, patient record keeping, and enables large-scale data analysis for research and policy-making. However, the task is challenging due to the complexity of medical language, the vast number of possible codes, and the class imbalance caused by rare codes.
+
+This project aims to develop a robust system capable of handling multi-label, multi-class classification for ICD codes, with a special focus on rare codes that suffer from limited data availability. The strategy involves generating synthetic clinical notes using Large Language Models (LLMs) integrated with Medical Knowledge Graphs (MKGs). By leveraging resources such as Unified Medical Language System (UMLS), Systematized Nomenclature of Medicine Clinical Terms (SNOMED CT), RxNorm, Medical Information Mart for Intensive Care IV (MIMIC-IV), and pre-built knowledge graphs like PrimeKG, Clinical Knowledge Graph (CKG), Drug Repurposing Knowledge Graph (DRKG), and Clinical Trials Knowledge Graph (CTKG), the system aims to enhance the quality and diversity of training data.
+
+The plan incorporates advanced techniques like Retrieval-Augmented Generation (RAG) and utilizes state-of-the-art tools and libraries such as LangChain, Neo4j, PyKEEN, and pre-trained models like ClinicalBERT and PubMedBERT. This comprehensive approach is designed to improve the prediction accuracy of ICD-10-CM codes, especially for rare codes, and to provide an explainable and scalable solution for clinical applications.
+
+\section{High-Level Plan}
+
+The project will be executed in several phases, each building upon the previous to achieve the final goal of an accurate and explainable ICD-10-CM code prediction system. The high-level plan includes:
+
+\begin{enumerate}
+    \item \textbf{Data Preparation and Knowledge Graph Integration}
+    \item \textbf{Retrieval-Augmented Synthetic Clinical Note Generation}
+    \item \textbf{Model Development and Fine-Tuning with Enhanced Data}
+    \item \textbf{Evaluation and Validation Using LLM-Assisted Quality Assessment}
+    \item \textbf{Deployment, Integration, and Continuous Improvement}
+\end{enumerate}
+
+\section{Detailed Steps and Strategy}
+
+\subsection{Phase 1: Data Preparation and Knowledge Graph Integration}
+
+\subsubsection{Step 1: Selection and Acquisition of Pre-built Knowledge Graphs}
+
+Utilize existing high-quality medical knowledge graphs to avoid the time-consuming process of building one from scratch. Recommended KGs include:
+
+\begin{itemize}
+    \item \textbf{PrimeKG}: A multimodal knowledge graph for precision medicine analyses, integrating over 20 resources and covering diseases, drugs, symptoms, and more.
+    \item \textbf{Clinical Knowledge Graph (CKG)}: Integrates experimental data and public databases, offering comprehensive clinical and biomedical knowledge.
+    \item \textbf{Drug Repurposing Knowledge Graph (DRKG)}: Designed to facilitate drug repurposing by integrating data from various biological sources.
+    \item \textbf{Clinical Trials Knowledge Graph (CTKG)}: Constructs knowledge from clinical trial data to infer new insights.
+    \item \textbf{ConceptNet}: Provides common-sense relationships between concepts, enhancing the naturalness of generated clinical notes.
+    \item \textbf{Wikidata and Wikipedia}: Serve as supplementary sources for general medical knowledge and context.
+\end{itemize}
+
+\subsubsection{Step 2: Integration of Knowledge Graphs with Existing Data}
+
+Combine the selected KGs with existing datasets:
+
+\begin{itemize}
+    \item \textbf{UMLS Metathesaurus}
+    \item \textbf{SNOMED CT}
+    \item \textbf{RxNorm}
+    \item \textbf{SNOMED CT to ICD-10-CM Mapping Data}
+    \item \textbf{MIMIC-IV Clinical Data}
+\end{itemize}
+
+\paragraph{Data Integration}
+
+\begin{itemize}
+    \item Map entities across different KGs using unique identifiers (e.g., UMLS Concept Unique Identifiers (CUIs), SNOMED CT codes).
+    \item Align concepts from various ontologies to create a unified knowledge base.
+    \item Utilize mapping files (e.g., SNOMED CT to ICD-10-CM TSV files) to establish relationships.
+\end{itemize}
+
+\paragraph{Mathematical Representation}
+
+Let the integrated knowledge graph be represented as:
+
+\begin{equation}
+G_{\text{total}} = \bigcup_{i=1}^{n} G_i
+\end{equation}
+
+where \( G_i \) represents each individual knowledge graph (e.g., PrimeKG, CKG, UMLS), and \( n \) is the number of knowledge graphs.
+
+\subsubsection{Step 3: Data Cleaning and Normalization}
+
+Ensure consistency across the integrated knowledge base:
+
+\begin{itemize}
+    \item \textbf{Normalization Techniques}:
+    \begin{itemize}
+        \item Standardize terminology using UMLS and SNOMED CT.
+        \item Resolve duplicates and inconsistencies using unique identifiers.
+        \item Harmonize data formats, units, and date representations.
+    \end{itemize}
+    \item \textbf{Tools}:
+    \begin{itemize}
+        \item Use Python libraries like Pandas and RDFlib for data manipulation.
+        \item Employ Neo4j for data storage and query optimization.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Step 4: Understanding ICD-10-CM Code Hierarchies}
+
+\begin{itemize}
+    \item Analyze the hierarchical structure of ICD-10-CM codes.
+    \item Create an ontology or graph representation to visualize parent-child relationships.
+    \item Recognize the four levels of hierarchy:
+    \begin{enumerate}
+        \item \textbf{Category}: Broad disease categories (three-character codes).
+        \item \textbf{Subcategory}: More specific diseases (four or five characters).
+        \item \textbf{Etiology/Anatomy/Severity}: Additional details (sixth character).
+        \item \textbf{Extension}: Initial encounter, subsequent encounter, sequela (seventh character).
+    \end{enumerate}
+    \item Incorporate this hierarchy into the knowledge graph for enhanced semantic understanding.
+\end{itemize}
+
+\subsubsection{Step 5: Incorporating Pre-Trained Embeddings}
+
+\begin{itemize}
+    \item Integrate pre-trained embeddings for concepts from resources like BioBERT, ClinicalBERT, and PubMedBERT.
+    \item Use UMLS-Embeddings for mapping UMLS CUIs to vector representations.
+    \item Generate embeddings for SNOMED CT concepts using graph embedding techniques (e.g., Node2Vec).
+    \item Employ tools like PyKEEN to manage and generate knowledge graph embeddings.
+\end{itemize}
+
+\subsection{Phase 2: Retrieval-Augmented Synthetic Clinical Note Generation}
+
+\subsubsection{Step 1: Strategy for ICD Code Combination Selection}
+
+\paragraph{Leveraging Knowledge Graphs to Find Associated ICD Codes}
+
+\begin{itemize}
+    \item Use the integrated KG to identify diseases and conditions that frequently co-occur.
+    \item Extract relationships such as \textit{comorbid\_with}, \textit{associated\_with}, \textit{risk\_factor\_for}, and \textit{complication\_of}.
+    \item Incorporate data from MIMIC-IV to obtain statistical co-occurrence frequencies.
+\end{itemize}
+
+\paragraph{Mathematical Representation}
+
+For any two diseases \( d_i \) and \( d_j \):
+
+\begin{equation}
+e_{ij} \in E \quad \text{if there exists a relationship between } d_i \text{ and } d_j
+\end{equation}
+
+\paragraph{Mapping Diseases to ICD-10-CM Codes}
+
+Define a mapping function:
+
+\begin{equation}
+f: V \rightarrow C
+\end{equation}
+
+where \( V \) is the set of medical concepts in the KG, and \( C \) is the set of ICD-10-CM codes.
+
+\subsubsection{Step 2: Generating Co-Occurrence Matrices and Clustering}
+
+\begin{itemize}
+    \item Create a co-occurrence matrix \( M \) where \( M_{ij} \) represents the strength of association between ICD codes \( c_i \) and \( c_j \).
+    \item Apply clustering algorithms (e.g., hierarchical clustering, K-means) to group ICD codes into clusters of related conditions.
+    \item Use dimensionality reduction techniques (e.g., PCA, t-SNE) for visualization and analysis.
+\end{itemize}
+
+\paragraph{Mathematical Representation}
+
+Let \( \mathcal{C} = \{C_1, C_2, \dots, C_k\} \) be the set of clusters, where each cluster \( C_k \) contains closely related ICD codes.
+
+\subsubsection{Step 3: Developing a Probabilistic Model for Code Selection}
+
+\begin{itemize}
+    \item Calculate the conditional probability \( P(C_i | C_j) \) of code \( C_i \) occurring with code \( C_j \) using statistical data from MIMIC-IV.
+    \item For a set of codes \( \{C_1, C_2, \dots, C_n\} \), compute the joint probability \( P(C_1, C_2, \dots, C_n) \).
+    \item Use association rule mining (e.g., Apriori algorithm) to find frequent itemsets of ICD codes.
+    \item Implement constraints based on clinical plausibility to refine the model.
+\end{itemize}
+
+\subsubsection{Step 4: Implementing Constraints for Clinical Plausibility}
+
+\begin{itemize}
+    \item Define exclusion rules to prevent incompatible code combinations (e.g., age-specific conditions).
+    \item Ensure mandatory inclusions where necessary (e.g., underlying conditions when complications are present).
+    \item Incorporate patient demographics, genetic factors, and risk factors into code selection.
+    \item Use data from ConceptNet and Wikidata to enhance common-sense reasoning.
+\end{itemize}
+
+\subsubsection{Step 5: Weighted Random Sampling for Code Combination Selection}
+
+\begin{itemize}
+    \item Use weighted random sampling based on the probabilities from the probabilistic model.
+    \item Introduce randomness to ensure diversity while maintaining clinical plausibility.
+    \item Employ stratified sampling to balance the representation of rare codes.
+\end{itemize}
+
+\subsubsection{Step 6: Retrieval-Augmented Generation (RAG) Pipeline Setup}
+
+\paragraph{Process}
+
+\begin{enumerate}
+    \item \textbf{Input}: Selected ICD-10-CM code combinations and their descriptions.
+    \item \textbf{Retrieval Module}:
+    \begin{itemize}
+        \item Query the integrated KG to fetch related information:
+        \begin{itemize}
+            \item Symptoms
+            \item Medications (from DrugBank, RxNorm)
+            \item Procedures
+            \item Patient demographics
+            \item Associated conditions
+            \item Genetic factors (from PharmGKB, Gene Ontology)
+            \item Clinical trial data (from CTKG)
+        \end{itemize}
+    \end{itemize}
+    \item \textbf{Contextualization}:
+    \begin{itemize}
+        \item Use contextual RAG techniques to situate retrieved chunks within the broader medical context.
+        \item Incorporate surrounding information to enhance semantic understanding.
+    \end{itemize}
+    \item \textbf{Structured Output}:
+    \begin{itemize}
+        \item Organize retrieved information into structured formats (e.g., JSON, XML).
+    \end{itemize}
+\end{enumerate}
+
+\paragraph{Mathematical Representation}
+
+For an ICD code set \( C = \{c_1, c_2, \dots, c_n\} \):
+
+\begin{equation}
+N_C, E_C = \text{Retrieve}(G_{\text{total}}, C)
+\end{equation}
+
+where \( N_C \) and \( E_C \) are the nodes and edges related to \( C \) in the knowledge graph.
+
+\subsubsection{Step 7: Prompt Engineering with Retrieved Knowledge}
+
+\paragraph{Example Prompt}
+
+\textit{Generate a clinical note for a \textbf{[age]}-year-old \textbf{[gender]} patient diagnosed with \textbf{[Disease Names]} (ICD-10-CM codes: \textbf{[Codes]}). The patient presents with the following symptoms: \textbf{[Symptom List]}. Medical history includes: \textbf{[Medical History]}. Physical examination findings: \textbf{[Examination Findings]}. Laboratory results: \textbf{[Lab Results]}. Genetic factors include: \textbf{[Genetic Markers]}. The assessment includes: \textbf{[List of ICD codes]}. Plan includes: \textbf{[Treatments and Procedures]}.}
+
+\subsubsection{Step 8: Large Language Model Utilization}
+
+\begin{itemize}
+    \item Choose an appropriate LLM for text generation:
+    \begin{itemize}
+        \item \textbf{Direct Use}: Use GPT-4 or another advanced LLM without fine-tuning.
+        \item \textbf{Fine-Tuned Model}: Fine-tune models like T5, LLaMA, or GPT-3 on medical text data.
+    \end{itemize}
+    \item Incorporate embeddings from ClinicalBERT or PubMedBERT for better domain understanding.
+\end{itemize}
+
+\paragraph{Fine-Tuning Process}
+
+\begin{itemize}
+    \item Use MIMIC-IV clinical notes and other open-access medical corpora (e.g., PubMed Central) for fine-tuning.
+    \item Focus on style, terminology, and clinical reasoning patterns.
+    \item Ensure compliance with data privacy regulations (e.g., HIPAA).
+\end{itemize}
+
+\subsubsection{Step 9: Synthetic Clinical Note Generation}
+
+\begin{itemize}
+    \item Input the prompt into the LLM along with retrieved context.
+    \item Generate the clinical note, ensuring medical accuracy and plausibility.
+    \item Validate that all selected ICD codes are appropriately represented in the text.
+\end{itemize}
+
+\subsubsection{Step 10: Quality Assessment Using an Auxiliary LLM}
+
+\begin{itemize}
+    \item Employ another LLM to assess the quality of the generated clinical notes.
+    \item Evaluate based on:
+    \begin{itemize}
+        \item Medical accuracy and plausibility
+        \item Completeness and relevance
+        \item Language quality and coherence
+        \item Consistency with provided information
+    \end{itemize}
+    \item Compare with real data from MIMIC-IV using similarity metrics (e.g., BLEU, ROUGE, BERTScore).
+    \item Incorporate clinician feedback for further validation.
+\end{itemize}
+
+\subsection{Phase 3: Model Development and Fine-Tuning with Enhanced Data}
+
+\subsubsection{Step 1: Dataset Expansion}
+
+\begin{itemize}
+    \item Augment the training dataset with the synthetic clinical notes.
+    \item Balance the dataset to ensure rare ICD codes are well-represented.
+    \item Maintain diversity in patient demographics, clinical presentations, and genetic factors.
+\end{itemize}
+
+\subsubsection{Step 2: Embedding Generation}
+
+\begin{itemize}
+    \item Generate embeddings for clinical notes and ICD code descriptions using domain-specific models (e.g., ClinicalBERT, PubMedBERT).
+    \item Incorporate KG embeddings to capture relational information using tools like PyKEEN.
+    \item Use graph neural networks to integrate structural information from the KG.
+\end{itemize}
+
+\subsubsection{Step 3: Multi-Label Classification Model Enhancement}
+
+\begin{itemize}
+    \item Update the classification model to leverage the enriched dataset and embeddings.
+    \item Consider architectures that combine textual and graph-based features.
+    \item Explore Transformer-based models (e.g., BERT, RoBERTa) for handling textual data.
+    \item Implement models that can handle long clinical notes (e.g., Longformer).
+\end{itemize}
+
+\subsubsection{Step 4: Handling Class Imbalance with Advanced Techniques}
+
+\begin{itemize}
+    \item Implement focal loss or label-distribution-aware margin loss to handle class imbalance.
+    \item Use oversampling or synthetic minority over-sampling techniques (SMOTE) for rare code combinations.
+    \item Apply cost-sensitive learning to penalize misclassification of rare codes.
+\end{itemize}
+
+\subsection{Phase 4: Evaluation and Validation Using LLM-Assisted Quality Assessment}
+
+\subsubsection{Step 1: Advanced Evaluation Metrics}
+
+Use metrics suitable for multi-label classification and text generation quality:
+
+\begin{itemize}
+    \item \textbf{Classification Metrics}:
+    \begin{itemize}
+        \item Precision, Recall, F1-score (Macro, Micro, and Weighted)
+        \item Area Under the ROC Curve (AUC-ROC)
+        \item Hamming Loss
+        \item Coverage Error
+    \end{itemize}
+    \item \textbf{Text Quality Metrics}:
+    \begin{itemize}
+        \item BLEU, ROUGE, METEOR
+        \item BERTScore for semantic similarity
+        \item Perplexity for language fluency
+    \end{itemize}
+    \item \textbf{Medical Specificity}:
+    \begin{itemize}
+        \item Entity-level F1-score for medical terms using SciSpaCy
+        \item Clinical coherence measured by domain experts
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Step 2: Cross-Validation and Hyperparameter Optimization}
+
+\begin{itemize}
+    \item Use k-fold cross-validation to ensure robustness and prevent overfitting.
+    \item Optimize hyperparameters using techniques like Bayesian Optimization or Grid Search.
+    \item Evaluate model performance on a validation set before final testing.
+\end{itemize}
+
+\subsubsection{Step 3: Error Analysis with LLM Assistance}
+
+\begin{itemize}
+    \item Use LLMs to interpret misclassifications and identify underlying issues.
+    \item Analyze confusion matrices to detect patterns.
+    \item Adjust the probabilistic model, constraints, or data preprocessing steps based on findings.
+    \item Incorporate feedback loops for continuous improvement.
+\end{itemize}
+
+\subsection{Phase 5: Deployment, Integration, and Continuous Improvement}
+
+\subsubsection{Step 1: Explainability and Interpretability}
+
+\begin{itemize}
+    \item Incorporate explainable AI techniques:
+    \begin{itemize}
+        \item SHAP (SHapley Additive exPlanations) for feature importance.
+        \item LIME (Local Interpretable Model-agnostic Explanations) for local predictions.
+        \item Integrated Gradients for understanding neural network decisions.
+    \end{itemize}
+    \item Visualize knowledge graph pathways that led to certain predictions.
+    \item Provide interpretable reports for clinicians.
+\end{itemize}
+
+\subsubsection{Step 2: Human-in-the-Loop Feedback}
+
+\begin{itemize}
+    \item Develop user-friendly interfaces for clinicians to review and provide feedback on model outputs.
+    \item Implement annotation tools for clinicians to correct or validate predictions.
+    \item Use feedback to fine-tune models and improve accuracy iteratively.
+\end{itemize}
+
+\subsubsection{Step 3: Continuous Learning Framework}
+
+\begin{itemize}
+    \item Implement mechanisms for the model to learn from new data over time (e.g., incremental learning).
+    \item Update the knowledge graph with new medical findings, research, and clinical trial results.
+    \item Monitor model performance in production and adjust as necessary.
+\end{itemize}
+
+\section{Implementation Considerations}
+
+\subsection{Relevant Datasets}
+
+\begin{itemize}
+    \item \textbf{MIMIC-IV (including Notes)}: For training and fine-tuning on real-world clinical data.
+    \item \textbf{UMLS 2024AA Metathesaurus}: For normalizing and linking medical terminology.
+    \item \textbf{SNOMED CT to ICD-10-CM Mapping Data}: For converting clinical concepts.
+    \item \textbf{RxNorm}: For integrating drug-related data.
+    \item \textbf{DrugBank and PharmGKB}: For detailed drug information and pharmacogenomics data.
+    \item \textbf{Gene Ontology (GO)}: For integrating genetic and molecular function data.
+    \item \textbf{ConceptNet and Wikidata}: For enhancing common-sense reasoning and general medical knowledge.
+    \item \textbf{T5 Large Model}: For fine-tuning on clinical text generation from structured inputs.
+\end{itemize}
+
+\subsection{Key Tools and Libraries}
+
+\begin{enumerate}
+    \item \textbf{LangChain}: Essential for setting up a Retrieval-Augmented Generation (RAG) pipeline connecting knowledge graphs with LLMs.
+    \item \textbf{fastRAG}: A framework optimized for RAG, useful for combining vector-based and graph-based retrieval.
+    \item \textbf{Neo4j}: A graph database to store and query structured medical data, such as UMLS and SNOMED CT relationships.
+    \item \textbf{PyKEEN}: For generating embeddings from medical knowledge graphs, enabling tasks like knowledge graph completion or link prediction.
+    \item \textbf{SciSpaCy}: A specialized library for extracting biomedical entities from unstructured clinical notes.
+    \item \textbf{Hugging Face Transformers}: For fine-tuning language models such as GPT-4, T5, or BERT on clinical note generation.
+    \item \textbf{FAISS and Elasticsearch}: For efficient vector search and indexing in retrieval modules.
+    \item \textbf{SPARQLWrapper and Pywikibot}: For querying Wikidata and integrating external knowledge.
+    \item \textbf{PyTorch Lightning}: For streamlined model training and experimentation.
+\end{enumerate}
+
+\subsection{Pipeline Architecture}
+
+\begin{itemize}
+    \item \textbf{Data Ingestion}: Use Neo4j to store and manage the knowledge graph data, integrating multiple KGs and ontologies.
+    \item \textbf{Retrieval Module}: Implemented using LangChain and fastRAG to retrieve relevant information from the KG and external sources.
+    \item \textbf{Language Model Interface}: Utilize Hugging Face Transformers for model fine-tuning and inference, incorporating domain-specific models.
+    \item \textbf{Embedding Generation}: Use PyKEEN for KG embeddings and models like ClinicalBERT for text embeddings.
+    \item \textbf{Indexing and Search}: Employ FAISS or Elasticsearch for efficient retrieval in the RAG pipeline.
+    \item \textbf{Evaluation Module}: Use SciSpaCy for entity extraction and evaluation metrics calculation; integrate LLMs for quality assessment.
+    \item \textbf{User Interface}: Develop interfaces for clinicians using web frameworks (e.g., Flask, Django).
+\end{itemize}
+
+\section{Technical Concepts and Mathematical Details}
+
+\subsection{Integration of LLMs and Knowledge Graphs}
+
+\paragraph{Retrieval-Augmented Generation (RAG)}
+
+Combines LLMs with external knowledge sources during inference:
+
+\begin{equation}
+P(T|Q) = \sum_{z \in \mathcal{Z}} P(T|Q, z) P(z|Q)
+\end{equation}
+
+Where:
+
+\begin{itemize}
+    \item \( T \) is the generated text.
+    \item \( Q \) is the query or prompt.
+    \item \( z \) is the retrieved knowledge.
+    \item \( \mathcal{Z} \) is the set of all possible retrieved documents.
+\end{itemize}
+
+\subsection{Contextual Retrieval Mechanisms}
+
+\paragraph{Contextual RAG}
+
+Enhances traditional RAG by situating retrieved chunks within the broader context:
+
+\begin{itemize}
+    \item \textbf{Chunking}: Divide documents into smaller, contextually enriched chunks.
+    \item \textbf{Dual Retrieval Models}:
+    \begin{itemize}
+        \item Embedding Models for semantic similarity.
+        \item TF-IDF Models for keyword-based relevance.
+    \end{itemize}
+    \item \textbf{Mathematical Representation}:
+
+    \begin{equation}
+    \text{Score}(Q, D_i) = \lambda \cdot \text{Sim}_{\text{embedding}}(Q, D_i) + (1 - \lambda) \cdot \text{Sim}_{\text{TF-IDF}}(Q, D_i)
+    \end{equation}
+
+    Where \( \lambda \) is a weighting factor between 0 and 1.
+\end{itemize}
+
+\subsection{Graph Neural Networks (GNNs) for Knowledge Integration}
+
+\paragraph{Graph Attention Networks (GATs)}
+
+\begin{equation}
+\mathbf{h}_i' = \sigma\left( \sum_{j \in \mathcal{N}(i)} \alpha_{ij} \mathbf{W} \mathbf{h}_j \right)
+\end{equation}
+
+Where:
+
+\begin{itemize}
+    \item \( \alpha_{ij} \) is the attention coefficient between nodes \( i \) and \( j \).
+    \item \( \mathbf{W} \) is the weight matrix.
+    \item \( \sigma \) is an activation function.
+    \item \( \mathcal{N}(i) \) is the set of neighbors of node \( i \).
+\end{itemize}
+
+\subsection{LLM-Assisted Quality Evaluation}
+
+\paragraph{BERTScore}
+
+Uses pre-trained LLM embeddings to evaluate similarity:
+
+\begin{equation}
+\text{BERTScore}(P, R) = \frac{1}{|P|} \sum_{x \in P} \max_{y \in R} \text{cosine}(e_x, e_y)
+\end{equation}
+
+Where:
+
+\begin{itemize}
+    \item \( P \) is the set of predicted tokens.
+    \item \( R \) is the set of reference tokens.
+    \item \( e_x \) and \( e_y \) are embeddings of tokens \( x \) and \( y \).
+\end{itemize}
+
+\subsection{Mathematical Modeling of Code Selection}
+
+\paragraph{Probabilistic Model}
+
+For code combinations:
+
+\begin{equation}
+P(C_1, C_2, \dots, C_n) = \prod_{i=1}^{n} P(C_i | C_{1}, C_{2}, \dots, C_{i-1})
+\end{equation}
+
+\paragraph{Association Rule Mining}
+
+Identify frequent itemsets \( I \) where support and confidence meet thresholds:
+
+\begin{itemize}
+    \item \textbf{Support}:
+
+    \begin{equation}
+    \text{support}(I) = \frac{\text{Frequency of } I}{\text{Total Transactions}}
+    \end{equation}
+
+    \item \textbf{Confidence}:
+
+    \begin{equation}
+    \text{confidence}(A \rightarrow B) = \frac{\text{support}(A \cup B)}{\text{support}(A)}
+    \end{equation}
+\end{itemize}
+
+\section{Conclusion}
+
+By systematically following the detailed plan outlined above, the project aims to develop a robust and accurate ICD-10-CM code prediction system. The integration of synthetic clinical note generation, knowledge graph utilization, advanced modeling techniques, and rigorous evaluation will address the challenges associated with multi-label, multi-class classification in the medical domain. Leveraging state-of-the-art tools and methodologies ensures that the system is scalable, explainable, and aligned with current research trends.
+
+\section*{Acknowledgments}
+
+We would like to thank the medical informatics community for their contributions to open-source datasets and tools, which have been instrumental in shaping this project.
+
+\bibliographystyle{apalike}
+\bibliography{references}
+
+\end{document}

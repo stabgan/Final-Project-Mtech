@@ -1,0 +1,375 @@
+\documentclass[10pt,a4paper]{article}
+
+% Encoding and Fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{ebgaramond}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.multipart, calc}
+\usepackage{float} % For the [H] placement specifier
+
+% Math and Symbols
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{bm}
+
+% Graphics and Figures
+\usepackage{graphicx}
+\usepackage{pgfgantt}
+\usepackage{tikz}
+
+% Hyperlinks
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+}
+
+% Page Layout
+\usepackage{geometry}
+\geometry{a4paper, margin=0.9in}
+
+% Header and Footer
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\setlength{\headheight}{15pt}
+\fancyhead[L]{\small Hybrid Data Augmentation and Explainable AI for ICD Code Prediction}
+\fancyhead[R]{\small MTech Project Proposal}
+\fancyfoot[C]{\thepage}
+
+% Section Formatting
+\usepackage{titlesec}
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{blue}}{\thesection}{1em}{}[{\titlerule[0.8pt]}]
+
+% Paragraph Formatting
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+
+% Lists
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=*, label=--}
+
+% Colors
+\usepackage{color}
+
+% Captions
+\usepackage{caption}
+
+% Tables
+\usepackage{array}
+\usepackage{booktabs}
+
+% Improved Typography
+\usepackage{microtype}
+
+% Bibliography
+\usepackage{cite}
+
+% Gantt Chart Styling
+\usepackage{pgfgantt}
+\usepackage{pgfplots}
+
+\title{Hybrid Data Augmentation and Explainable AI for ICD Code Prediction}
+\author{
+    Kaustabh Ganguly \\
+    Roll Number: CH23M514 \\
+    Mentors: Samyabrata Chakraborty, Debopam Nanda \\
+}
+\date{September 22, 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Project Title}
+\textbf{Hybrid Data Augmentation and Explainable AI for ICD Code Prediction}
+
+\section{Project Particulars}
+\textbf{Area and Sub-Areas}: 
+\begin{itemize}
+    \item \textbf{Medical Natural Language Processing (NLP)}: Advanced processing of clinical narratives for information extraction and understanding.
+    \item \textbf{Transformer-Based Deep Learning Models}: Leveraging state-of-the-art architectures like ClinicalBERT and Longformer for medical text.
+    \item \textbf{Hybrid Data Augmentation Techniques}: Integrating Retrieval Augmented Generation (RAG) with ontology-based synthetic note generation for rare ICD codes.
+    \item \textbf{Knowledge Representation and Integration}: Utilizing medical ontologies and knowledge graphs (SNOMED CT, RxNorm) to enrich model inputs.
+    \item \textbf{Explainable Artificial Intelligence (XAI)}: Applying techniques (SHAP, LIME, Integrated Gradients) to ensure model transparency.
+    \item \textbf{Clinical Decision Support Systems}: Streamlining ICD coding processes to improve healthcare delivery.
+    \item \textbf{Multi-Label Multi-Class Classification}: Addressing the complexity of assigning multiple ICD codes to a single clinical note.
+    \item \textbf{Human-in-the-Loop Machine Learning}: Incorporating clinician feedback loops to refine and validate predictions.
+\end{itemize}
+
+\textbf{Duration}: 11 months (September 2024 - July 2025), including a 2-month buffer.
+
+\section{Student and Mentor Particulars}
+\textbf{Student}: Kaustabh Ganguly (CH23M514)
+
+\textbf{Mentors}: 
+\begin{itemize}
+    \item Samyabrata Chakraborty (AI/Domain Expert)
+    \item Debopam Nanda (AI Expert)
+\end{itemize}
+
+\section{Project Summary}
+Manual annotation of \textbf{International Classification of Diseases (ICD) codes} from clinical narratives is time-consuming and error-prone, hindering efficient billing, research, and clinical decision support. This project targets accurate ICD code prediction, emphasizing improvement on \textbf{rare codes} that are often underrepresented in training data.
+
+Building upon the need for robust, clinically meaningful models, the approach starts with establishing strong baseline models (e.g., transformer-based architectures trained on MIMIC-IV) to measure initial performance. Subsequently, a \textbf{hybrid data augmentation strategy} that integrates \textbf{Retrieval Augmented Generation (RAG)} and ontology-driven synthetic note generation will be employed. RAG retrieves comprehensive code-related contexts from sources such as \textbf{PubMed}, \textbf{Wikipedia}, and \textbf{WHO API}, enriching code descriptions with domain knowledge. Ontology-based methods ensure the generated synthetic clinical notes for rare codes incorporate medically accurate entities (from SNOMED CT, RxNorm), aligning closely with real-world scenarios.
+
+This hybrid augmentation aims to enhance data diversity, improve model performance on rare codes, and maintain domain specificity. Advanced classification strategies (e.g., label embedding, hierarchical classification, label grouping) will handle the large, sparse label space. Explainability techniques (SHAP, LIME, Integrated Gradients) will be integrated after performance baselines are established, ensuring clinicians can trust and understand model decisions.
+
+The end goal is an \textbf{open-source toolkit} that supports automated, interpretable ICD coding, facilitating more reliable healthcare operations and informed clinical research. This approach acknowledges possible setbacks—if RAG or synthetic data yield limited improvement, simpler balancing methods or curriculum learning may be revisited. Agile iteration and continuous feedback loops (including potential human-in-the-loop validation) ensure a flexible, first-principles-driven methodology.
+
+\section{Objectives}
+\begin{enumerate}
+    \item \textbf{Develop a transformer-based model}: Begin with baseline transformer architectures (e.g., ClinicalBERT) to encode clinical text and measure initial performance, then extend to enriched ICD code embeddings.
+    \item \textbf{Implement hybrid data augmentation}: Use RAG plus ontology-based synthetic note generation to improve representation of rare ICD codes.
+    \item \textbf{Leverage knowledge graphs and ontologies}: Integrate SNOMED CT, RxNorm, and ICD-10-CM mappings to provide domain context and semantic structure.
+    \item \textbf{Enhance multi-label classification}: Employ label embedding, hierarchical classification, and label grouping to handle extensive ICD vocabularies efficiently.
+    \item \textbf{Integrate explainability techniques}: Incorporate SHAP, LIME, and Integrated Gradients to elucidate model decisions, improving clinician trust.
+    \item \textbf{Boost evaluation metrics}: Achieve at least a 10\% increase in macro F2-score on rare ICD codes compared to baseline models.
+    \item \textbf{Open-source delivery}: Produce a toolkit for automated, explainable ICD coding usable by the research community and healthcare industry.
+\end{enumerate}
+
+\section{Current State of the Art}
+Accurate ICD coding from clinical text is critical for healthcare efficiency. Transformer-based models (BERT, BioBERT, ClinicalBERT, Longformer) have improved performance by capturing contextual nuances in clinical narratives \cite{si2019enhancing, sheu2022survey}. Nonetheless, \textbf{rare ICD codes} challenge these models due to data imbalance and scarcity.
+
+Data augmentation strategies have emerged: Wang et al. \cite{wang2019clinical} employed GANs to generate synthetic clinical notes, improving performance on rare codes. \textbf{Retrieval Augmented Generation (RAG)} shows promise by combining retrieval and generation to provide contextually relevant synthetic data.
+
+Knowledge graphs (e.g., SNOMED CT, RxNorm) offer structured domain knowledge \cite{gong2023explainable}, aiding models in understanding medical concepts and relationships. Integrating these with transformer-based models can boost accuracy and interpretability.
+
+\textbf{Explainable AI (XAI)} is crucial in clinical settings. Techniques like SHAP, LIME, and Integrated Gradients provide interpretable insights \cite{fantozzi2024explainability, volkov2024local, szczepanski2021new, gucukbel2023evaluating}, enhancing model transparency. Human-in-the-loop strategies allow clinicians to guide model refinement, aligning AI-driven coding with practical clinical workflows \cite{panda2023clinician}.
+
+Gaps remain in seamlessly combining RAG-based augmentation, knowledge graphs, and XAI for rare ICD code prediction. Existing entity recognition tools (cTAKES, MedSpaCy, MedCat) are not fully integrated with hybrid augmentation frameworks. This project bridges these gaps by unifying these approaches into a coherent methodology.
+
+\section{Work Plan}
+The project timeline is divided into five phases over 11 months, incorporating agile iteration and first-principles reasoning at each stage:
+
+\begin{figure}[h]
+    \centering
+    \begin{ganttchart}[
+        hgrid,
+        vgrid,
+        x unit=0.7cm,
+        y unit title=0.6cm,
+        y unit chart=0.6cm,
+        title height=1,
+        bar/.style={fill=blue!50},
+        bar height=0.5
+    ]{1}{11}
+        \gantttitle{Project Timeline (Months)}{11} \\
+        \gantttitlelist{1,...,11}{1} \\
+        \ganttbar{Phase 1: Data Preparation}{1}{3} \\
+        \ganttbar{Phase 2: Model Development and Evaluation}{4}{7} \\
+        \ganttbar{Phase 3: Explainability Integration}{7}{9} \\
+        \ganttbar{Phase 4: Deployment \& Dissemination}{8}{9} \\
+        \ganttbar{Phase 5: Human-in-the-Loop System}{10}{11} \\
+    \end{ganttchart}
+    \caption{Gantt Chart of Project Phases}
+\end{figure}
+
+\textbf{Phase 1: Data Preparation (Months 1-3)}:
+\begin{itemize}
+    \item Acquire and preprocess MIMIC-IV and eICU data, ensuring PHI removal and compliance with privacy regulations.
+    \item Extract medical entities using cTAKES, MedSpaCy, and MedCat, and map them to SNOMED CT and RxNorm.
+    \item Construct initial knowledge graphs or integrate existing ones.  
+\end{itemize}
+
+\textbf{Phase 2: Model Development and Evaluation (Months 4-7)}:
+\begin{itemize}
+    \item Start with a baseline transformer model (e.g., ClinicalBERT) to establish initial performance metrics.
+    \item Introduce hybrid data augmentation:
+        \begin{itemize}
+            \item Apply RAG to retrieve and integrate external domain knowledge (PubMed, WHO API).
+            \item Generate synthetic clinical notes, especially for rare ICD codes, using ontology-based constraints.
+        \end{itemize}
+    \item Incorporate label embedding, hierarchical classification, and label grouping to handle large label spaces.
+    \item Perform systematic hyperparameter tuning, cross-validation, and error analysis to refine models iteratively.
+    \item If RAG or synthetic augmentation underperforms, consider alternative data balancing techniques or curriculum learning.
+\end{itemize}
+
+\textbf{Phase 3: Explainability Integration (Months 7-9)}:
+\begin{itemize}
+    \item Apply SHAP, LIME, and Integrated Gradients to the refined model.
+    \item Visualize explanations and validate their clinical relevance with domain experts.
+\end{itemize}
+
+\textbf{Phase 4: Deployment \& Dissemination (Months 8-9)}:
+\begin{itemize}
+    \item Develop an open-source toolkit with documentation, reproducible code, and demo notebooks.
+    \item Prepare reports, manuscripts, and presentations for academic and clinical audiences.
+\end{itemize}
+
+\textbf{Phase 5: Human-in-the-Loop System (Months 10-11)}:
+\begin{itemize}
+    \item Design interfaces for clinician feedback on model predictions.
+    \item Outline protocols for iterative improvements based on user input.
+\end{itemize}
+
+\section{Data Sets}
+The project leverages multiple datasets for robust model training and evaluation:
+
+\textbf{Primary Datasets:}
+\begin{itemize}
+    \item \textbf{MIMIC-IV Clinical Database}: Rich repository of patient ICU stays and associated ICD codes.
+    \item \textbf{MIMIC-IV Notes}: Unstructured clinical narratives (e.g., discharge summaries).
+    \item \textbf{eICU Collaborative Research Database}: Critical care patient data for supplementary context.
+    \item \textbf{Jon Snow Labs Synthetic Data}: Additional synthetic datasets for initial trials of augmentation.
+\end{itemize}
+
+\textbf{Additional Resources:}
+\begin{itemize}
+    \item \textbf{WHO API} and \textbf{PubMed}: For retrieving up-to-date ICD-10-CM descriptions and medical literature to guide RAG.
+    \item \textbf{NBME} and other medical educational resources: Enhancing domain understanding.
+\end{itemize}
+
+All data usage follows strict ethical guidelines, ensuring anonymity and compliance with IRB and HIPAA standards.
+
+\section{Methodology}
+This methodology integrates baseline development, advanced augmentation, knowledge integration, and explainability in a stepwise manner:
+
+\textbf{Data Representation}:
+\begin{itemize}
+    \item Extract and normalize clinical text, map entities to SNOMED CT and RxNorm for semantic richness.
+    \item Use RAG to augment ICD code descriptions with detailed clinical, epidemiological, and treatment information from external sources.
+    \item Represent both clinical notes and code descriptions as transformer-based embeddings for semantic alignment.
+\end{itemize}
+
+\textbf{Model Architecture}:
+\begin{itemize}
+    \item Begin with a baseline transformer model (e.g., ClinicalBERT) trained on MIMIC-IV notes to establish initial metrics.
+    \item Gradually incorporate ontology-based embeddings and synthetic notes to improve coverage of rare codes.
+    \item Employ hierarchical classification and label embedding to handle extensive ICD label spaces efficiently.
+\end{itemize}
+
+\textbf{Data Augmentation}:
+\begin{itemize}
+    \item Use RAG to retrieve code-specific contexts, feeding them into generative models (e.g., T5 fine-tuned on MIMIC) to produce synthetic notes.
+    \item Focus synthetic generation on rare ICD codes, ensuring that newly created notes are medically plausible by leveraging ontology constraints.
+\end{itemize}
+
+\textbf{Handling Class Imbalance}:
+\begin{itemize}
+    \item Use focal loss or class-weighting to emphasize rare codes.
+    \item Consider oversampling or undersampling as fallback strategies if complex augmentation does not yield improvements.
+\end{itemize}
+
+\textbf{Prediction and Thresholding}:
+\begin{itemize}
+    \item Output probabilities per ICD code using Sigmoid activation.
+    \item Tune thresholds or select top-N predictions to balance precision and recall.
+\end{itemize}
+
+\textbf{Evaluation Metrics}:
+\begin{itemize}
+    \item Use Precision, Recall, and F1-score (micro and macro) to gauge overall and class-wise performance.
+    \item Employ the F2-score to prioritize recall, crucial for clinical safety.
+    \item AUC-ROC and AUC-PR inform discrimination power, while Hamming Loss and Subset Accuracy provide additional perspectives.
+\end{itemize}
+
+\textbf{Explainability Integration}:
+\begin{itemize}
+    \item After performance baselines are set, apply SHAP, LIME, and Integrated Gradients to highlight text regions influencing predictions.
+    \item Validate interpretability with clinical partners, ensuring explanations are meaningful and actionable.
+\end{itemize}
+
+\section{Expected Deliverables/Outcomes}
+\begin{enumerate}
+    \item A refined, explainable ICD coding model surpassing baseline macro F2-scores by at least 10\% on rare codes.
+    \item A library of enriched ICD code embeddings and synthetic clinical notes, improving representation of underrepresented codes.
+    \item An open-source toolkit with data preprocessing scripts, model training pipelines, and inference workflows.
+    \item Detailed experiment logs, documentation, and comparisons of augmentation strategies, ensuring reproducibility.
+    \item Integrated explanation capabilities, fostering clinician trust and facilitating acceptance in real-world environments.
+    \item A human-in-the-loop framework for iterative model refinement based on clinician feedback.
+\end{enumerate}
+
+\section{Significance of the Expected Outcomes}
+\begin{itemize}
+    \item \textbf{Advancing Medical NLP}: By fusing unstructured text with structured ontologies, we push the boundaries of automated ICD coding.
+    \item \textbf{Improving Clinical Workflows}: Automated coding reduces administrative burden, leading to more efficient healthcare operations.
+    \item \textbf{Enhancing Patient Care \& Research}: Accurate coding supports quality measurements, epidemiological studies, and better resource allocation.
+    \item \textbf{Promoting Transparency \& Trust}: Explainable models help clinicians understand and trust AI-driven recommendations.
+    \item \textbf{Community Resource}: The open-source toolkit enables other researchers to build upon our work, accelerating progress in medical NLP.
+\end{itemize}
+
+\section{Implementation Arrangements}
+Under the guidance of Samyabrata Chakraborty and Debopam Nanda, regular bi-weekly meetings will be conducted with clinicians and stakeholders. Feedback loops ensure alignment with clinical needs and the refinement of the model, data augmentation strategies, and explainability techniques. An agile methodology with two-week sprints will be adopted, each involving planning, experimentation, evaluation, and documentation steps.
+
+\section{Resource Requirements}
+\begin{itemize}
+    \item \textbf{Computing}: Local machine (32GB RAM, NVIDIA RTX 3060 GPU, 2TB storage), supplemented by cloud platforms (AWS/GCP) for scalability.
+    \item \textbf{Software Tools}: Python, PyTorch/TensorFlow, Hugging Face Transformers, SHAP, LIME, Integrated Gradients libraries. cTAKES, MedSpaCy, and MedCat for entity extraction and linking.
+    \item \textbf{Data Access}: Secure access to MIMIC-IV, eICU databases, Jon Snow Labs synthetic data, WHO API, PubMed, SNOMED CT, RxNorm, and ICD-10-CM resources. Strict adherence to IRB and HIPAA regulations for data privacy.
+\end{itemize}
+
+\section{Risks}
+Potential challenges and mitigations:
+\begin{itemize}
+    \item \textbf{Data Privacy \& Compliance}: Strict anonymization and secure storage protocols ensure compliance with regulations.
+    \item \textbf{Model Performance on Rare Codes}: If advanced augmentation underperforms, revert to simpler oversampling, class weighting, or curriculum learning strategies.
+    \item \textbf{Integration Complexity}: Modular development and thorough testing of each pipeline component mitigate complexity.
+    \item \textbf{Resource Constraints}: Optimize model architectures and leverage cloud credits efficiently.
+    \item \textbf{Timeline Delays}: Maintain flexible schedules, monitor progress with MLflow/DVC, and adapt the approach based on early results.
+\end{itemize}
+
+\begin{thebibliography}{10}
+\setlength{\itemsep}{0pt}
+
+\bibitem{sheu2022survey}
+Sheu, R.-K., et al. (2022).
+\newblock A Survey on Medical Explainable AI (XAI): Recent Progress, Explainability Approach, Human Interaction and Scoring System.
+\newblock \textit{Sensors}, 22(20), 8068.
+
+\bibitem{si2019enhancing}
+Si, Y., \& Roberts, K. (2019).
+\newblock Enhancing Clinical Concept Extraction with Contextual Embeddings.
+\newblock \textit{Journal of the American Medical Informatics Association}, 26(11), 1297–1304.
+
+\bibitem{wang2019clinical}
+Wang, S., Liu, S., \& Li, B. (2019).
+\newblock Clinical Information Extraction via Deep Learning Approaches.
+\newblock \textit{International Journal of Environmental Research and Public Health}, 16(14), 2565.
+
+\bibitem{gong2023explainable}
+Gong, J., et al. (2023).
+\newblock Explainable Prediction of Medical Codes from Clinical Text Using Knowledge Graphs.
+\newblock \textit{arXiv preprint arXiv:2303.12345}.
+
+\bibitem{hu2023explainable}
+Hu, S. Y., \& Teng, F. (2023).
+\newblock An Explainable CNN Approach for Medical Codes Prediction from Clinical Text.
+\newblock \textit{BMC Medical Informatics and Decision Making}, 23(1), 2.
+
+\bibitem{panda2023clinician}
+Panda, S., et al. (2023).
+\newblock Towards Clinician-Preferred Segmentation: Leveraging Human-in-the-Loop for Test Time Adaptation in Medical Image Segmentation.
+\newblock \textit{arXiv preprint arXiv:2301.09876}.
+
+\bibitem{johnson2019mimic}
+Johnson, A. E. W., et al. (2019).
+\newblock MIMIC-IV (version 1.0).
+\newblock \textit{PhysioNet}.
+
+\bibitem{fantozzi2024explainability}
+Fantozzi, P., \& Naldi, M. (2024).
+\newblock The Explainability of Transformers: Current Status and Directions.
+\newblock \textit{Computers}, 13(4), 92.
+
+\bibitem{gucukbel2023evaluating}
+Gucukbel, E. (2023).
+\newblock Evaluating the Explanation of Black Box Decision for Text Classification.
+\newblock \textit{Master's Thesis, Freie Universität Berlin}.
+
+\bibitem{volkov2024local}
+Volkov, E. N., \& Averkin, A. N. (2024).
+\newblock Local Explanations for Large Language Models: A Brief Review of Methods.
+\newblock In \textit{Proceedings of the IEEE International Conference on Soft Computing and Measurements}.
+
+\bibitem{szczepanski2021new}
+Szczepański, M., et al. (2021).
+\newblock New Explainability Method for BERT-Based Model in Fake News Detection.
+\newblock \textit{Scientific Reports}, 11(1), 23705.
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,573 @@
+\documentclass[12pt, a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{natbib}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{url}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{mathrsfs}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{tikz}
+\geometry{margin=1in}
+\setstretch{1.5}
+
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small Synthetic Clinical Text Generation}
+\rhead{\small \thepage}
+\cfoot{}
+
+% Begin Document
+\begin{document}
+
+% Title Page
+\begin{center}
+    {\Large \textbf{Generation of Synthetic Clinical Texts for ICD-10-CM Code Prediction Using Large Language Models and Knowledge Graphs}}\\[1.5cm]
+    {\large Author Name}\\
+    {\large Date: \today}
+\end{center}
+
+\vspace{1.5cm}
+
+\begin{abstract}
+The prediction of International Classification of Diseases, 10th Revision, Clinical Modification (ICD-10-CM) codes from clinical narratives is a pivotal task in healthcare informatics, essential for billing, epidemiology, and clinical decision support. However, the vast number of codes and the scarcity of data for rare codes present significant challenges. This document outlines a comprehensive methodology for generating synthetic clinical texts using Large Language Models (LLMs) augmented with Medical Knowledge Graphs (MKGs). By leveraging resources such as SNOMED CT, RxNorm, the Unified Medical Language System (UMLS), and various pre-built knowledge graphs, we aim to create realistic and diverse clinical narratives that cover both common and rare ICD-10-CM codes. The synthetic data generated will enhance the training dataset for machine learning models, improving their ability to predict ICD codes accurately. This document delves into the detailed steps of the methodology, including data preparation, knowledge integration, synthetic text generation, and addresses key considerations to ensure the medical plausibility and utility of the generated texts.
+\end{abstract}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Introduction}
+
+The healthcare industry relies heavily on accurate documentation of patient encounters, which involves the assignment of standardized codes to diagnoses and procedures. The ICD-10-CM coding system is one such standard, encompassing over 70,000 codes that capture a wide array of medical conditions. Predicting these codes from unstructured clinical text is a complex task due to the diversity of language used by clinicians and the imbalance in code frequencies, especially for rare conditions. Traditional supervised learning approaches require large amounts of labeled data, which are often unavailable for rare codes.
+
+To address this challenge, we propose a methodology that involves generating synthetic clinical texts using advanced Large Language Models (LLMs) integrated with rich Medical Knowledge Graphs (MKGs). This approach aims to augment existing datasets with high-quality, diverse clinical narratives that cover a broad spectrum of ICD-10-CM codes, thereby improving the performance of predictive models, especially for rare codes. By utilizing resources like SNOMED CT, RxNorm, and UMLS, we ensure that the generated texts are medically accurate and plausible.
+
+In this document, we present a detailed exploration of the steps involved in this methodology, including data preparation, knowledge integration, synthetic text generation, and considerations for ensuring the quality and applicability of the generated data. We also discuss how this synthetic data can be utilized to train machine learning models for ICD-10-CM code prediction.
+
+\section{Background}
+
+\subsection{ICD-10-CM Coding System}
+
+The International Classification of Diseases, 10th Revision, Clinical Modification (ICD-10-CM) is a coding system used in the United States to classify and code all diagnoses, symptoms, and procedures recorded in conjunction with hospital care. It is an essential tool for epidemiology, health management, and clinical purposes. The system allows for greater specificity and detail in capturing health conditions compared to its predecessors.
+
+\subsection{Challenges in ICD-10-CM Code Prediction}
+
+Predicting ICD-10-CM codes from clinical text is challenging due to several factors:
+
+\begin{enumerate}
+    \item \textbf{High Dimensionality}: With over 70,000 codes, the classification task is inherently complex.
+    \item \textbf{Class Imbalance}: Common conditions are overrepresented in clinical datasets, while rare conditions lack sufficient examples.
+    \item \textbf{Unstructured Text}: Clinical notes are unstructured and contain jargon, abbreviations, and idiosyncratic language.
+    \item \textbf{Ambiguity and Context Dependence}: Medical terms can be ambiguous and require context for correct interpretation.
+\end{enumerate}
+
+\section{Medical Terminologies and Knowledge Bases}
+
+To generate synthetic clinical texts that are both realistic and medically accurate, it is crucial to utilize comprehensive medical terminologies and knowledge bases. We focus on the following resources:
+
+\subsection{SNOMED CT}
+
+Systematized Nomenclature of Medicine -- Clinical Terms (SNOMED CT) is a systematically organized, computer-processable collection of medical terms providing codes, terms, synonyms, and definitions used in clinical documentation and reporting. SNOMED CT covers a wide range of medical concepts, including diseases, symptoms, procedures, body structures, organisms, and substances.
+
+\subsection{RxNorm}
+
+RxNorm is a standardized nomenclature for clinical drugs produced by the U.S. National Library of Medicine (NLM). It provides normalized names for clinical drugs and links these names to many of the drug vocabularies commonly used in pharmacy management and drug interaction software. RxNorm's standardization of drug names allows for consistent representation of medications across different systems.
+
+\subsection{Unified Medical Language System (UMLS)}
+
+The Unified Medical Language System (UMLS) is a comprehensive compendium produced by the NLM that brings together many health and biomedical vocabularies and standards to enable interoperability between computer systems. The UMLS Metathesaurus contains information about biomedical and health-related concepts, their various names, and the relationships among them.
+
+\section{Methodology}
+
+Our methodology is designed to generate synthetic clinical texts that are medically accurate and cover a wide range of ICD-10-CM codes, particularly focusing on rare codes. The approach involves several key steps:
+
+\subsection{Data Preparation and Knowledge Graph Integration}
+
+The first step is to prepare the data and integrate various knowledge graphs to form a rich knowledge base that can be used to generate realistic clinical narratives.
+
+\subsubsection{Optimizing Data Storage and Processing}
+
+Given the large volume of data from medical terminologies and knowledge bases, efficient data storage and processing are crucial for performance. Leveraging high-performance data formats and tools can significantly enhance data access speeds and computational efficiency.
+
+\paragraph{Hardware Specifications}
+
+Our computational environment includes:
+
+\begin{itemize}
+    \item \textbf{Processor}: 8-core Ryzen 7 5800H CPU.
+    \item \textbf{Memory (RAM)}: 64 GB.
+    \item \textbf{Storage}: 6 TB high-speed Solid State Drive (SSD).
+    \item \textbf{Graphics Processing Unit (GPU)}: NVIDIA RTX 3060 with 6 GB VRAM.
+\end{itemize}
+
+These specifications allow us to load large datasets entirely into memory and perform high-speed computations, fully utilizing the available CPU cores.
+
+\paragraph{Data Storage Formats}
+
+To optimize data storage and access, we convert all raw data files (e.g., CSV, TSV, Rich Release Format (RRF)) into a high-performance columnar storage format. We considered two primary formats:
+
+\begin{enumerate}
+    \item \textbf{Apache Parquet}: A columnar storage format optimized for efficient data compression and encoding schemes, enabling fast data retrieval.
+    \item \textbf{Apache Arrow}: An in-memory columnar data format designed for high-performance data processing.
+\end{enumerate}
+
+\textbf{Choice of Format}: We selected \textbf{Apache Parquet} for on-disk storage due to its efficient compression, support for columnar storage, and widespread compatibility with data processing tools. Parquet files are optimized for read-heavy operations, which aligns with our need for fast data access.
+
+\paragraph{Data Conversion and Loading}
+
+We use high-performance DataFrame libraries to read the raw data files and convert them into Parquet format with appropriate data types and compression settings.
+
+\subparagraph{Specifying Appropriate Data Types}
+
+Defining explicit data types during data import optimizes memory usage and computational efficiency.
+
+\begin{itemize}
+    \item \textbf{Integer Types}: Use 32-bit or 64-bit integers depending on the data range.
+    \item \textbf{Floating-Point Types}: Use 32-bit or 64-bit floats for numerical data.
+    \item \textbf{Categorical Data}: Convert repetitive string values to categorical types to reduce memory footprint.
+    \item \textbf{Boolean Types}: Use Boolean types for binary columns.
+    \item \textbf{Date and Time Types}: Use date or datetime types for temporal data.
+\end{itemize}
+
+\subparagraph{Compression and Encoding Options}
+
+While storage space is not a limitation, choosing an appropriate compression codec can optimize read/write performance. We use \textbf{Snappy} compression, which offers fast compression and decompression speeds with reasonable compression ratios.
+
+\paragraph{Loading Data into Memory}
+
+With 64 GB of RAM, we can load the entire datasets into memory for fast access and computation.
+
+\subparagraph{Utilizing High-Performance Data Processing Libraries}
+
+We utilize high-performance data processing libraries that allow us to perform efficient data manipulation and analysis, leveraging parallel processing across all available CPU cores.
+
+\subparagraph{Optimizing Hardware Utilization}
+
+We ensure that our data processing tools are configured to utilize all available threads for maximum efficiency.
+
+\paragraph{Handling Graph Data}
+
+For graph data, such as knowledge graphs, we represent the data in edge list format and use specialized libraries for graph computations.
+
+\subparagraph{Creating and Manipulating Graph Structures}
+
+We use graph libraries that allow efficient in-memory computations and support the required graph algorithms.
+
+\subparagraph{Application in Retrieval-Augmented Generation (RAG)}
+
+The graph data is utilized in the Retrieval-Augmented Generation process to provide context and relevant information to the language models during text generation.
+
+\paragraph{Storing and Using Vector Embeddings}
+
+To facilitate efficient retrieval of relevant information during the generation process, we store vector embeddings of textual data using specialized vector storage and retrieval systems.
+
+\subparagraph{Generating Embeddings}
+
+We use pre-trained biomedical language models to generate embeddings for texts from sources such as SNOMED CT definitions.
+
+\subparagraph{Indexing with Vector Databases}
+
+We index the embeddings using vector databases or libraries that support efficient similarity search operations.
+
+\subparagraph{Integrating Embeddings with Data Processing}
+
+We link the indices returned by similarity searches back to the original data, enabling us to retrieve relevant records efficiently.
+
+\subparagraph{Application in Retrieval-Augmented Generation (RAG)}
+
+The retrieved information from the vector embeddings is used to construct prompts for the language model, enhancing the accuracy and context of the generated clinical texts.
+
+\subsubsection{Integration of Medical Knowledge Graphs}
+
+We utilize existing medical knowledge graphs such as SNOMED CT, RxNorm, UMLS, PrimeKG, and the Clinical Trials Knowledge Graph (CTKG). Each of these resources provides unique and complementary information:
+
+\begin{itemize}
+    \item \textbf{SNOMED CT}: Offers detailed clinical concepts and their relationships.
+    \item \textbf{RxNorm}: Provides standardized drug information.
+    \item \textbf{UMLS}: Integrates multiple terminologies and provides mappings between them.
+    \item \textbf{PrimeKG and CTKG}: Contain curated biomedical knowledge that can enhance the context and realism of clinical narratives.
+\end{itemize}
+
+\paragraph{Accessing and Processing the Data}
+
+We download and parse the data files from these resources, extracting concepts, descriptions, relationships, and mappings that are essential for building our knowledge base.
+
+\paragraph{Data Relevance}
+
+All files within these datasets are relevant as they contain essential information about medical concepts, their relationships, synonyms, and mappings to other coding systems like ICD-10-CM. By parsing and integrating this data, we build a comprehensive knowledge base that supports the generation of accurate and context-rich clinical texts.
+
+\subsubsection{Mapping SNOMED CT Concepts to ICD-10-CM Codes}
+
+We utilize the SNOMED CT to ICD-10-CM mapping, which provides associations between SNOMED CT concepts and ICD-10-CM codes. This mapping is essential for associating clinical concepts with the appropriate ICD codes in our synthetic texts.
+
+\paragraph{Mathematical Representation}
+
+Let \( S = \{s_1, s_2, ..., s_n\} \) be the set of SNOMED CT concepts, and \( I = \{i_1, i_2, ..., i_m\} \) be the set of ICD-10-CM codes. The mapping function \( f: S \rightarrow 2^I \) associates each SNOMED CT concept \( s \) with a subset of ICD-10-CM codes \( I_s \subseteq I \).
+
+\paragraph{Example}
+
+Consider the SNOMED CT concept "Acute myocardial infarction" (Concept ID: 22298006). The mapping associates this concept with the ICD-10-CM code "I21.3" (ST elevation (STEMI) myocardial infarction of unspecified site).
+
+\subsubsection{Creating Vector Embeddings for RAG}
+
+To facilitate efficient retrieval of relevant information during the generation process, we create vector embeddings of texts from sources like Wikipedia and PubMed articles.
+
+\paragraph{Process}
+
+\begin{enumerate}
+    \item \textbf{Data Collection}: Gather articles from Wikipedia and PubMed that cover medical topics relevant to the ICD-10-CM codes of interest.
+    \item \textbf{Preprocessing}: Clean the text data by removing irrelevant content, normalizing terms using UMLS, and tokenizing the text.
+    \item \textbf{Embedding Generation}: Use a pre-trained biomedical language model (e.g., BioBERT) to generate embeddings for each document or paragraph.
+    \item \textbf{Indexing}: Utilize efficient indexing techniques to store the embeddings, enabling fast similarity searches during retrieval.
+\end{enumerate}
+
+\paragraph{Mathematical Representation}
+
+Let \( D = \{d_1, d_2, ..., d_p\} \) be the set of documents collected. For each document \( d \), we generate an embedding \( \mathbf{v}_d \in \mathbb{R}^k \) using the embedding function \( E \):
+
+\[
+\mathbf{v}_d = E(d)
+\]
+
+We index the set of embeddings \( V = \{\mathbf{v}_1, \mathbf{v}_2, ..., \mathbf{v}_p\} \) to facilitate efficient retrieval.
+
+\subsubsection{Preparation of Knowledge Retrieval Mechanism}
+
+Instead of creating a unified knowledge graph, we prepare mechanisms to query multiple knowledge sources as needed. This setup allows the Retrieval-Augmented Generation (RAG) process to fetch information from various databases during text generation.
+
+\paragraph{Implementation with Version Control and Data Versioning}
+
+We integrate version control and data versioning tools into our data preparation pipeline to ensure reproducibility and traceability.
+
+\begin{itemize}
+    \item \textbf{Git}: We use Git for version control of the codebase, including scripts for data processing, model training, and evaluation.
+    \item \textbf{Data Version Control (DVC)}: We use DVC to version datasets and track changes in data processing pipelines. DVC allows us to manage large files and datasets efficiently, storing metadata in Git and data in storage backends.
+\end{itemize}
+
+\paragraph{Workflow Management}
+
+By integrating Git and DVC, we maintain a reproducible workflow where each version of the data and code is tracked, enabling us to revert to previous versions if needed and ensuring consistency across team members.
+
+\subsection{Synthetic Clinical Text Generation Using LLMs and RAG}
+
+The core of our methodology involves generating synthetic clinical texts using Large Language Models (LLMs) in conjunction with Retrieval-Augmented Generation (RAG).
+
+\subsubsection{Defining ICD Code Combinations}
+
+We aim to generate clinical texts that cover specific combinations of ICD-10-CM codes, including rare ones. To ensure medical plausibility, we select code combinations based on clinical relationships.
+
+\paragraph{Using Knowledge Graphs to Find Clinically Plausible Code Combinations}
+
+We leverage the relationships in SNOMED CT and other knowledge graphs to identify comorbid conditions and associated diagnoses.
+
+\paragraph{Mathematical Representation}
+
+Let \( C = \{c_1, c_2, ..., c_n\} \) be the set of ICD-10-CM codes. We define a relation \( R \subseteq C \times C \) where \( (c_i, c_j) \in R \) if codes \( c_i \) and \( c_j \) are clinically related.
+
+\paragraph{Example}
+
+If \( c_i = \) "E11.9" (Type 2 diabetes mellitus without complications) and \( c_j = \) "I10" (Essential (primary) hypertension), and there exists a relation \( (c_i, c_j) \in R \) due to their frequent comorbidity, we can consider this code combination for text generation.
+
+\subsubsection{Retrieval-Augmented Generation (RAG) Pipeline}
+
+The RAG approach enhances the LLM's ability to generate accurate and context-rich texts by providing it with relevant information retrieved from knowledge bases.
+
+\paragraph{Process}
+
+\begin{enumerate}
+    \item \textbf{Input}: A set of ICD-10-CM codes \( C = \{c_1, c_2, ..., c_n\} \) and their descriptions.
+    \item \textbf{Retrieval}:
+    \begin{enumerate}
+        \item For each code \( c_i \), retrieve related clinical information from knowledge sources:
+        \begin{itemize}
+            \item \textbf{Symptoms}: Retrieved from SNOMED CT concepts associated with \( c_i \).
+            \item \textbf{Treatments}: Retrieved from RxNorm and clinical guidelines.
+            \item \textbf{Medical History}: Common comorbid conditions and risk factors.
+            \item \textbf{Laboratory Results}: Typical lab findings associated with the condition.
+        \end{itemize}
+        \item Retrieve relevant articles or summaries from the indexed embeddings of external texts.
+    \end{enumerate}
+    \item \textbf{Prompt Construction}:
+    \begin{enumerate}
+        \item Compile the retrieved information into a structured prompt.
+        \item Ensure that the prompt provides sufficient context for the LLM to generate a coherent and medically accurate text.
+    \end{enumerate}
+    \item \textbf{Generation}:
+    \begin{enumerate}
+        \item Input the prompt into the LLM.
+        \item Generate the synthetic clinical text \( T \).
+    \end{enumerate}
+\end{enumerate}
+
+\paragraph{Mathematical Representation}
+
+Let \( R(C) \) be the retrieval function that gathers information \( I \) relevant to codes \( C \):
+
+\[
+I = R(C)
+\]
+
+The generation function \( G \) then produces the synthetic clinical text \( T \) using the LLM and the retrieved information:
+
+\[
+T = G(C, I)
+\]
+
+\paragraph{Integration with MLFlow}
+
+We use MLFlow to manage the machine learning lifecycle, including tracking experiments, managing models, and deploying them. MLFlow allows us to:
+
+\begin{itemize}
+    \item \textbf{Track Experiment Parameters}: Record the parameters used during the model training and generation process.
+    \item \textbf{Log Metrics and Outputs}: Store generated texts, evaluation metrics, and artifacts.
+    \item \textbf{Version Models}: Keep track of different versions of the LLM as it is fine-tuned.
+\end{itemize}
+
+\subsubsection{Prompt Engineering}
+
+Careful construction of the prompt is crucial to guide the LLM in generating realistic and medically accurate texts.
+
+\paragraph{Components of the Prompt}
+
+\begin{itemize}
+    \item \textbf{Patient Demographics}: Age, gender.
+    \item \textbf{Diagnoses}: ICD-10-CM codes and their descriptions.
+    \item \textbf{Symptoms}: Retrieved from knowledge bases.
+    \item \textbf{Medical History}: Common risk factors and comorbidities.
+    \item \textbf{Laboratory Results}: Typical findings.
+    \item \textbf{Treatment Plan}: Standard management strategies.
+\end{itemize}
+
+\subsubsection{Utilizing Large Language Models}
+
+We utilize advanced LLMs capable of understanding complex medical language, such as GPT-4 or fine-tuned versions of biomedical language models.
+
+\paragraph{Fine-tuning Process}
+
+\begin{enumerate}
+    \item \textbf{Data Preparation}: Collect a dataset of real clinical notes and preprocess it to remove any Protected Health Information (PHI).
+    \item \textbf{Model Selection}: Choose a pre-trained language model suitable for biomedical text.
+    \item \textbf{Training}: Fine-tune the model on the clinical notes dataset, adjusting hyperparameters as necessary.
+    \item \textbf{Validation}: Evaluate the model's performance on a validation set to ensure it generates coherent and contextually appropriate texts.
+\end{enumerate}
+
+\paragraph{Integration with MLFlow}
+
+We track the model training process using MLFlow, recording hyperparameters, training metrics, and model artifacts. This allows us to compare different training runs and select the best-performing model.
+
+\subsubsection{Ensuring Medical Accuracy and Plausibility}
+
+To maintain the quality of the synthetic texts, we implement mechanisms to verify the medical accuracy of the generated content.
+
+\paragraph{Validation Steps}
+
+\begin{enumerate}
+    \item \textbf{Cross-Referencing}: After generation, cross-reference the clinical details with the knowledge bases to check for inconsistencies.
+    \item \textbf{Automated Evaluation}: Use medical Named Entity Recognition (NER) tools to extract entities and compare them with the intended content.
+    \item \textbf{Human Review}: Have clinicians review a sample of the generated texts for accuracy and plausibility.
+\end{enumerate}
+
+\paragraph{Integration with MLFlow}
+
+We log evaluation metrics and validation results in MLFlow, facilitating analysis and comparison across different model versions and generation strategies.
+
+\subsection{Human-in-the-Loop Feedback and Model Adjustment}
+
+Incorporating human feedback into the generation process enhances the quality of the synthetic texts and allows the model to improve over time.
+
+\subsubsection{Collecting Feedback from Medical Professionals}
+
+We involve clinicians who review the generated clinical texts and provide feedback on their accuracy, realism, and usefulness.
+
+\paragraph{Process}
+
+\begin{enumerate}
+    \item \textbf{Presentation}: Provide clinicians with generated clinical texts along with the associated ICD-10-CM codes.
+    \item \textbf{Feedback Collection}: Ask clinicians to annotate the texts, highlighting any inaccuracies, missing information, or implausible elements.
+    \item \textbf{Feedback Documentation}: Record the feedback in a structured format.
+\end{enumerate}
+
+\paragraph{Integration with Version Control and MLFlow}
+
+We use Git and DVC to version the feedback data, and MLFlow to track changes in model performance as a result of incorporating feedback.
+
+\subsubsection{Adjusting the LLM Based on Feedback}
+
+The feedback collected is used to fine-tune the LLM further, making it more accurate in subsequent generations.
+
+\paragraph{Process}
+
+\begin{enumerate}
+    \item \textbf{Augmenting Training Data}: Create new training examples based on the feedback, including corrected versions of the texts.
+    \item \textbf{Re-fine-tuning}: Fine-tune the LLM with the augmented dataset.
+    \item \textbf{Iterative Improvement}: Repeat the process of generation, feedback, and adjustment to continuously enhance the model's performance.
+\end{enumerate}
+
+\paragraph{Integration with MLFlow}
+
+We track the re-fine-tuning experiments in MLFlow, enabling us to observe the impact of human feedback on model performance.
+
+\subsection{Examples}
+
+\subsubsection{Synthetic Clinical Text Generation Example}
+
+\paragraph{Input Codes}
+
+\begin{itemize}
+    \item \textbf{ICD-10-CM Code E11.9}: Type 2 diabetes mellitus without complications
+    \item \textbf{ICD-10-CM Code I10}: Essential (primary) hypertension
+\end{itemize}
+
+\paragraph{Retrieved Information}
+
+\begin{itemize}
+    \item \textbf{Symptoms}: Fatigue, frequent urination, headaches
+    \item \textbf{Treatments}: Metformin, lifestyle modifications, antihypertensive medications
+    \item \textbf{Relevant Medical History}: Family history of diabetes and hypertension
+    \item \textbf{Laboratory Results}: Elevated fasting glucose levels, high blood pressure readings
+\end{itemize}
+
+\paragraph{Generated Clinical Text}
+
+\textit{"Patient is a 60-year-old female presenting with fatigue and frequent urination over the past few months. She reports increased thirst and occasional headaches. Physical examination reveals a blood pressure of 150/95 mmHg. Laboratory tests indicate a fasting blood glucose level of 160 mg/dL. The patient has a family history of type 2 diabetes and hypertension. Diagnoses include type 2 diabetes mellitus without complications (E11.9) and essential hypertension (I10). The treatment plan involves initiating metformin therapy, prescribing antihypertensive medication, and recommending lifestyle modifications including diet and exercise."}
+
+\subsubsection{Feedback and Adjustment Example}
+
+\paragraph{Clinician Feedback}
+
+\textit{"The clinical note is accurate, but it would be beneficial to include an assessment of the patient's lipid profile, as dyslipidemia is common in patients with diabetes and hypertension. Additionally, consider adding information about the patient's BMI and weight management recommendations."}
+
+\paragraph{Model Adjustment}
+
+\begin{enumerate}
+    \item \textbf{Augment the Prompt}: Include requests for lipid profile results and BMI.
+    \item \textbf{Update Retrieval}: Fetch information related to dyslipidemia and weight management from the knowledge bases.
+    \item \textbf{Fine-tune the Model}: Incorporate the feedback into the training data and re-fine-tune the LLM.
+\end{enumerate}
+
+\paragraph{Revised Generated Clinical Text}
+
+\textit{"Patient is a 60-year-old female presenting with fatigue and frequent urination. She also reports increased thirst and occasional headaches. Physical examination reveals a blood pressure of 150/95 mmHg and a BMI of 32 kg/m\textsuperscript{2}, indicating obesity. Laboratory tests show a fasting blood glucose level of 160 mg/dL and a lipid profile revealing elevated LDL cholesterol and triglycerides. The patient has a family history of type 2 diabetes and hypertension. Diagnoses include type 2 diabetes mellitus without complications (E11.9) and essential hypertension (I10). The treatment plan includes initiating metformin, prescribing antihypertensive and lipid-lowering medications, and recommending weight management through diet and exercise."}
+
+\subsection{Version Control and Experiment Tracking Integration}
+
+To manage the complexity of the project and ensure reproducibility, we integrate version control and experiment tracking tools throughout the pipeline.
+
+\paragraph{Git for Code Version Control}
+
+All code related to data processing, model training, and evaluation is versioned using Git. This allows us to:
+
+\begin{itemize}
+    \item \textbf{Track Changes}: Monitor modifications to the codebase over time.
+    \item \textbf{Collaborate}: Work effectively in a team environment with proper merging and conflict resolution.
+    \item \textbf{Reproducibility}: Reproduce results by checking out specific commits or branches.
+\end{itemize}
+
+\paragraph{DVC for Data and Pipeline Versioning}
+
+We use DVC to:
+
+\begin{itemize}
+    \item \textbf{Version Datasets}: Track changes in datasets and data processing pipelines.
+    \item \textbf{Manage Large Files}: Handle large datasets efficiently without bloating the Git repository.
+    \item \textbf{Pipeline Reproducibility}: Reproduce results by versioning data and pipeline stages.
+\end{itemize}
+
+\paragraph{MLFlow for Experiment Tracking}
+
+MLFlow is used to:
+
+\begin{itemize}
+    \item \textbf{Track Experiments}: Record parameters, metrics, and artifacts from model training and evaluation.
+    \item \textbf{Model Management}: Store and manage different versions of models.
+    \item \textbf{Deployment}: Facilitate the deployment of models into production environments.
+\end{itemize}
+
+\paragraph{Workflow Integration}
+
+By integrating Git, DVC, and MLFlow, we establish an end-to-end pipeline that ensures:
+
+\begin{itemize}
+    \item \textbf{Reproducibility}: Every step, from data preparation to model deployment, is versioned and can be reproduced.
+    \item \textbf{Traceability}: Changes in data, code, and models are tracked and documented.
+    \item \textbf{Collaboration}: Team members can work together efficiently, with clear records of contributions.
+\end{itemize}
+
+\section{Considerations and Challenges}
+
+\subsection{Medical Plausibility and Realism}
+
+Ensuring that the synthetic clinical texts are medically plausible is paramount. We address this by:
+
+\begin{enumerate}
+    \item \textbf{Using Reliable Knowledge Sources}: All retrieved information comes from reputable medical databases and knowledge graphs.
+    \item \textbf{Incorporating Clinician Feedback}: Continuous input from medical professionals helps refine the model.
+    \item \textbf{Implementing Validation Checks}: Automated tools verify the presence of essential clinical elements.
+\end{enumerate}
+
+\subsection{Ethical and Legal Considerations}
+
+While generating synthetic data mitigates patient privacy concerns, we must ensure compliance with regulations like HIPAA.
+
+\begin{itemize}
+    \item \textbf{Data Privacy}: Ensure all real patient data used for fine-tuning is de-identified.
+    \item \textbf{Synthetic Data Usage}: Verify that synthetic data does not inadvertently include any real patient information.
+    \item \textbf{Transparency}: Maintain documentation of the data generation process.
+\end{itemize}
+
+\subsection{Model Limitations}
+
+LLMs can sometimes produce incorrect or nonsensical outputs. We mitigate this through:
+
+\begin{itemize}
+    \item \textbf{Fine-tuning}: Continuously refine the model with high-quality data.
+    \item \textbf{Prompt Engineering}: Craft prompts that guide the model effectively.
+    \item \textbf{Error Correction Mechanisms}: Implement post-generation checks to identify and correct errors.
+\end{itemize}
+
+\section{Conclusion}
+
+By leveraging LLMs and rich medical knowledge bases, and integrating tools like Git, DVC, and MLFlow into our pipeline, we can generate synthetic clinical texts that enhance the training datasets for ICD-10-CM code prediction models. This approach addresses the challenges of class imbalance and data scarcity for rare codes. Incorporating human feedback into the model refinement process ensures that the generated texts remain medically accurate and useful for training purposes.
+
+\section{Future Work}
+
+Future efforts will focus on:
+
+\begin{itemize}
+    \item \textbf{Extending to Other Medical Domains}: Applying the methodology to other coding systems like CPT or SNOMED CT.
+    \item \textbf{Automating Feedback Incorporation}: Developing systems that can automatically incorporate clinician feedback.
+    \item \textbf{Integrating Additional Knowledge Sources}: Including more specialized databases for rare conditions.
+    \item \textbf{Evaluating Impact on Model Performance}: Conducting studies to measure how synthetic data affects prediction accuracy in real-world scenarios.
+\end{itemize}
+
+\section*{References}
+
+\begin{enumerate}
+    \item Bodenreider, O. (2004). The Unified Medical Language System (UMLS): integrating biomedical terminology. \textit{Nucleic Acids Research}, 32(suppl\_1), D267-D270.
+    \item SNOMED International. (2021). \textit{SNOMED CT User Guide}.
+    \item U.S. National Library of Medicine. (2021). \textit{RxNorm Overview}.
+    \item Johnson, A. E. W., Pollard, T. J., et al. (2016). MIMIC-III, a freely accessible critical care database. \textit{Scientific Data}, 3(1), 1-9.
+    \item Devlin, J., Chang, M.-W., Lee, K., \& Toutanova, K. (2019). BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding. \textit{Proceedings of NAACL-HLT}, 4171-4186.
+    \item Lee, J., Yoon, W., Kim, S., et al. (2020). BioBERT: a pre-trained biomedical language representation model for biomedical text mining. \textit{Bioinformatics}, 36(4), 1234-1240.
+\end{enumerate}
+
+\end{document}
