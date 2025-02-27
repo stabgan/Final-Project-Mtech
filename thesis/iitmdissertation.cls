@@ -134,14 +134,16 @@
 \ifdiss@synopsis\else
 \setkomafont {chapter}     {\Large}
 \providecaptionname{english}{\chaptername}{Chapter}
+
 \let\originaladdchaptertocentry\addchaptertocentry
 \renewcommand*{\addchaptertocentry}[2]{%
-  \IfArgIsEmpty{#1}{% chapter TOC entry without number
-    \originaladdchaptertocentry{#1}{\textupper{#2}}%
-  }{% chapter TOC entry with number
-    \originaladdchaptertocentry{\textupper{\chapapp~#1}}{\textupper{#2}}%
+  \IfArgIsEmpty{#1}{%
+    \originaladdchaptertocentry{}{\protect #2}%
+  }{%
+    \originaladdchaptertocentry{\protect \chapapp~#1}{\protect #2}%
   }%
 }
+
 \let\raggedchapter\centering
 \renewcommand\chapterlineswithprefixformat[3]{%
   \setstretch{1.2}\textupper{#2#3}%

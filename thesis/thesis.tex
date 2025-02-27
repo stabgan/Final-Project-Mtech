@@ -11,7 +11,12 @@
 \usepackage{amsmath}    % for math
 \usepackage{hyperref}   % for links
 \usepackage{multirow}   % for multi-row tables
-% \usepackage[table]{xcolor} % only if you actually use colored tables
+\usepackage{glossaries}
+\usepackage{pgfgantt}
+\usepackage{float}
+
+% Overleaf-compatible glossaries setup
+\makeglossaries
 \setupGlossaryAbbreviationsDefinitions
 % ----------------------------------------
 %          METADATA (Cover Info)
@@ -53,18 +58,23 @@
     % ---------------------------------------
     %          MAIN MATTER
     % ---------------------------------------
-    %\begin{MainMatter}
-    %    \input{2-mainmatter/chapters/chap-introduction.tex}
-    %    ...
-    %\end{MainMatter}
+      \begin{MainMatter}
+      \input 2-mainmatter/chapters/chap-introduction
+      \input 2-mainmatter/chapters/chap-literature-review
+      \input 2-mainmatter/chapters/chap-problem-definition
+      \input 2-mainmatter/chapters/chap-methodology
+      \input 2-mainmatter/chapters/chap-dataset-understanding
+      \input 2-mainmatter/chapters/chap-results
+      \input 2-mainmatter/chapters/chap-conclusion
+  \end{MainMatter}
 
     % ---------------------------------------
     %          BACK MATTER
     % ---------------------------------------
     \begin{BackMatter}
         % If using BibTeX:
-        % \bibliographystyle{iitm}
-        % \bibliography{references/references}
+        \bibliographystyle{iitm}
+        \bibliography{references/references}
     \end{BackMatter}
 
 \end{document}

@@ -6,28 +6,33 @@ submitted by me to the Indian Institute of Technology Madras, for the award of
 record of the research work done by me under the supervision of
 {\bfseries\asserttoken{dissertationGuides}{Whoever Guides}}.
 
-\par
+\vspace{1.5\parskip}
 
-\vspace{1.5\parskip} % Smaller than 3\parskip
-\begin{tabular}{@{} >{\bfseries}p{0.48\textwidth} >{\bfseries\raggedleft}p{0.48\textwidth} @{}}
-\begin{tabular}[t]{@{} p{0.48\textwidth} @{}}
-Chennai 600036 \newline
-Date:  {\bfseries \asserttoken{dissertationCertificateDate}{01 January 2022}}
+%--- Two-column layout for place/date vs. author/signature
+\begin{tabular}{@{}p{0.48\textwidth} p{0.48\textwidth}@{}}
+  \begin{minipage}[t]{\linewidth}
+    Chennai 600036 \\
+    Date: \textbf{\asserttoken{dissertationCertificateDate}{01 January 2022}}
+  \end{minipage}
+  &
+  \begin{minipage}[t]{\linewidth}
+    \raggedleft
+    \textbf{Kaustabh Ganguly} \\
+    \vspace{1em}% adjust if you want more/less space
+    \includegraphics[width=3cm]{images/signature-kaustabh.png}
+  \end{minipage}
 \end{tabular}
-    &
-\asserttoken{dissertationAuthorName}{Firstname Lastname} \tabularnewline
-\end{tabular}
 
-% If you still want your guides in flushright, keep them:
-\input 0-prematter/pre-cert-guides
+%--- Insert your guides' signatures next
+\input{0-prematter/pre-cert-guides}
 
-\vspace*{\fill}  % final fill if there's space
+\vspace*{\fill}
 \begin{center}
-{\footnotesize
-  \textcopyright\
-  \asserttoken{dissertationYear}{2025}\
-  Indian Institute of Technology Madras
-}
+  {\footnotesize
+    \textcopyright\
+    \asserttoken{dissertationYear}{2025}\
+    Indian Institute of Technology Madras
+  }
 \end{center}
 
 \newpage

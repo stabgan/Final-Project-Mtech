@@ -1,1 +1,85 @@
-% This is chap-conclusion.tex
+\chapter{Conclusion and Work Timeline}
+
+\section{Summary of Work}
+In the initial phase of this project, we have:
+\begin{itemize}
+    \item Established a robust development environment with appropriate tools and infrastructure.
+    \item Explored and acquired various datasets and medical knowledge graphs to support data augmentation and knowledge integration.
+    \item Conducted data exploration and preprocessing, including identifying redundant clinical notes.
+    \item Implemented baseline models to understand the challenges in predicting ICD codes.
+    \item Identified key challenges such as data imbalance, complexity of clinical texts, and the limitations of traditional machine learning models.
+\end{itemize}
+
+\section{Future Work}
+Moving forward, the following tasks are planned:
+
+\subsection{Phase 1: Data Augmentation (Months 3-5)}
+\begin{itemize}
+    \item Implement hybrid data augmentation techniques combining RAG and ontology-based methods.
+    \item Generate synthetic clinical notes for rare ICD codes to balance the dataset.
+    \item Validate the quality of synthetic data with clinical experts.
+\end{itemize}
+
+\subsection{Phase 2: Transformer-Based Model Development (Months 5-7)}
+\begin{itemize}
+    \item Develop and fine-tune transformer-based models suitable for long clinical documents.
+    \item Integrate knowledge graph embeddings to enhance the model's understanding of medical concepts and relationships.
+    \item Address computational challenges by optimizing model architectures and training procedures.
+\end{itemize}
+
+\subsection{Phase 3: Model Training and Evaluation (Months 7-8)}
+\begin{itemize}
+    \item Train the model using the augmented dataset.
+    \item Evaluate performance using appropriate metrics, focusing on rare code prediction.
+    \item Perform error analysis to identify areas for improvement.
+\end{itemize}
+
+\subsection{Phase 4: Explainability Integration (Months 8-9)}
+\begin{itemize}
+    \item Integrate explainability techniques to provide interpretable predictions.
+    \item Develop visualization tools for presenting explanations to clinicians.
+    \item Gather feedback from healthcare professionals to refine explanations.
+\end{itemize}
+
+\subsection{Phase 5: Deployment and Validation (Months 9-10)}
+\begin{itemize}
+    \item Deploy the model as an open-source toolkit.
+    \item Validate the model with clinician feedback and refine as necessary.
+    \item Document the methodology and results for publication.
+\end{itemize}
+
+\section{Timeline}
+\begin{figure}[H]
+    \centering
+    \begin{ganttchart}[
+        hgrid,
+        vgrid,
+        x unit=0.7cm,
+        y unit title=0.6cm,
+        y unit chart=0.6cm,
+        title height=1,
+        bar/.style={fill=blue!50},
+        bar height=0.5
+    ]{1}{11}
+        \gantttitle{Project Timeline (Months)}{11} \\
+        \gantttitlelist{1,...,11}{1} \\
+        \ganttbar{Phase 1: Data Augmentation}{3}{5} \\
+        \ganttbar{Phase 2: Model Development}{5}{7} \\
+        \ganttbar{Phase 3: Training and Evaluation}{7}{8} \\
+        \ganttbar{Phase 4: Explainability Integration}{8}{9} \\
+        \ganttbar{Phase 5: Deployment \& Validation}{9}{10} \\
+    \end{ganttchart}
+    \caption{Gantt Chart of Planned Work Timeline}
+\end{figure}
+
+\section{Potential Challenges and Contingency Plans}
+\begin{itemize}
+    \item \textbf{Computational Resources}: If computational limitations arise, we will explore cloud-based solutions or optimize model architectures for efficiency.
+    \item \textbf{Data Quality}: In case synthetic data does not sufficiently improve model performance, we will consider alternative data augmentation techniques or focus on enhancing model robustness.
+    \item \textbf{Model Interpretability}: If explainability methods do not meet clinician requirements, we will investigate other interpretability frameworks or simplify the model for better transparency.
+\end{itemize}
+
+\section{Concluding Remarks}
+This thesis aims to contribute to the field of automated ICD coding by addressing critical challenges through innovative methods. By combining hybrid data augmentation, advanced modeling techniques, and explainability, we anticipate improving prediction accuracy, particularly for rare ICD codes, and enhancing the usability of automated coding systems in clinical settings. The successful completion of this project could pave the way for further applications of data augmentation and knowledge integration in medical NLP tasks.                                   w   w
+
+34

@@ -1,1 +1,59 @@
 % This is chap-results.tex
+\chapter{Results}
+
+\section{Baseline Model Experiments}
+
+\subsection{K-Nearest Neighbors (KNN) Classifier}
+\begin{itemize}
+    \item \textbf{Objective}: Establish a baseline for multi-label ICD code prediction using simple models.
+    \item \textbf{Methodology}:
+    \begin{itemize}
+        \item \textbf{Text Vectorization}: Used TF-IDF vectorizer with a maximum of 5,000 features and n-gram range of (1,2).
+        \item \textbf{Multi-Label Binarization}: Applied \textbf{MultiLabelBinarizer} to handle multiple ICD codes per clinical note.
+        \item \textbf{Model Training}: Trained a KNN classifier on the vectorized text data.
+    \end{itemize}
+    \item \textbf{Results}:
+    \begin{itemize}
+        \item \textbf{Evaluation Metrics}: Used Hamming Loss and Macro F1-Score to assess performance.
+        \item \textbf{Performance}: The model achieved a Macro F1-Score of 0.12, indicating poor performance, especially on rare codes.
+        \item \textbf{Analysis}: High Hamming Loss and low F1-Score confirmed that the model struggled with data imbalance and text complexity.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Observations}
+\begin{itemize}
+    \item The baseline model highlighted the challenges in predicting ICD codes using traditional machine learning approaches.
+    \item Reinforced the need for advanced models that can handle complex clinical texts and data imbalance.
+\end{itemize}
+
+\section{Similarity Matching Using MinHash}
+
+\subsection{Objective}
+Identify duplicate or highly similar clinical notes to reduce redundancy and potentially improve model training.
+
+\subsection{Methodology}
+\begin{itemize}
+    \item \textbf{Text Preprocessing}: Applied standard preprocessing steps to clean the text.
+    \item \textbf{MinHash and LSH}: Used MinHash to create signatures for each document and Locality Sensitive Hashing (LSH) to efficiently identify similar documents.
+    \item \textbf{Threshold Setting}: Set similarity thresholds (e.g., 90\% and 97\%) to identify pairs of similar notes.
+\end{itemize}
+
+\subsection{Results}
+\begin{itemize}
+    \item Identified 260 notes with over 90\% similarity.
+    \item Found six notes with over 97\% similarity, indicating nearly identical content.
+    \item Verification with a medical expert confirmed that these notes were indeed similar or duplicates.
+\end{itemize}
+
+\subsection{Implications}
+\begin{itemize}
+    \item Removing or consolidating similar notes can reduce data redundancy.
+    \item May improve model performance by preventing the model from being biased towards duplicated information.
+\end{itemize}
+
+\section{Challenges Identified}
+\begin{itemize}
+    \item \textbf{Data Imbalance}: The initial models confirmed that frequent codes dominate predictions, and rare codes are often missed.
+    \item \textbf{Model Limitations}: Simple models like KNN are insufficient for capturing the complexity of clinical narratives.
+    \item \textbf{Need for Advanced Techniques}: Emphasized the importance of implementing transformer-based models and data augmentation strategies.
+\end{itemize}

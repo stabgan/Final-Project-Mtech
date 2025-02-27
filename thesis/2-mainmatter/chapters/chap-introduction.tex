@@ -1,1 +1,181 @@
-% This is chap-introduction.tex
+\chapter{Introduction}
+\label{chap:introduction}
+
+\section{Background}
+Healthcare facilities rely on standardized coding schemes to categorize patient diagnoses, procedures, and comorbidities. The \textbf{International Classification of Diseases (ICD)}, maintained by the World Health Organization (WHO), is the most widely adopted system, with ICD-10 and ICD-11 being the modern variants \cite{who2019icd11}. In large-scale hospital databases like \textbf{MIMIC-IV}, each admission may have multiple ICD codes assigned, reflecting the patient’s primary complaint, secondary conditions, and complications.
+
+Despite the critical importance of ICD codes in reimbursement, epidemiological monitoring, and healthcare research, accurate coding remains difficult. Assigning codes manually is labor-intensive and prone to errors, especially when dealing with long discharge summaries containing multiple, potentially rare conditions. Automation can help streamline these processes but faces key hurdles in data imbalance, complexity of clinical text, and the need for transparency in model outputs.
+
+\section{Importance of ICD Coding}
+ICD codes underpin numerous healthcare activities:
+\begin{itemize}
+    \item \textbf{Billing and Reimbursement:} Proper code assignments ensure fair compensation for patient care.
+    \item \textbf{Clinical Research and Surveillance:} Epidemiological studies, rare-disease registries, and population-level analyses rely on coded data to identify relevant cohorts.
+    \item \textbf{Hospital and Public Health Management:} Resource planning, policy-making, and outbreak detection all draw on aggregated ICD codes.
+\end{itemize}
+Any systemic inaccuracies in ICD assignment can thus ripple through the healthcare ecosystem, impacting finances, patient outcomes, and research quality.
+
+\section{Challenges in Manual ICD Coding}
+\begin{itemize}
+    \item \textbf{High Volume and Complexity:} Large hospitals generate tens of thousands of discharge summaries, each potentially referencing multiple diagnoses and procedures.
+    \item \textbf{Ambiguous or Unstructured Notes:} Clinical text frequently contains abbreviations, non-standard phrases, and domain-specific terms \cite{wrenn2010quantifying}.
+    \item \textbf{Risk of Human Error:} Even experienced coders can overlook secondary or rare conditions when processing lengthy documents.
+\end{itemize}
+As a result, there is a growing interest in \textit{automated ICD coding} systems to improve consistency and reduce the coding burden.
+
+\section{Need for Automated ICD Coding}
+Automated solutions hold promise in:
+\begin{itemize}
+    \item \textbf{Enhancing Efficiency:} Minimizing the time coders spend on each patient record.
+    \item \textbf{Boosting Accuracy:} Mitigating undercoding or overcoding issues, especially if advanced natural language understanding is employed.
+    \item \textbf{Scaling to Large Data:} Managing databases with millions of records while retaining fidelity in code assignments.
+\end{itemize}
+However, practical deployment of automated ICD coding remains non-trivial—particularly for rare or complex codes.
+
+\section{Challenges in Automated ICD Coding}
+\label{sec:challenges-automated}
+Past research in automated ICD coding has achieved notable success with frequent codes, yet several obstacles persist \cite{dong2022automated,edin2023automated}:
+\begin{itemize}
+    \item \textbf{Data Imbalance:} A small subset of common codes appears abundantly, whereas many codes (often clinically significant) occur only a handful of times \cite{rios2018few}.
+    \item \textbf{Long and Redundant Notes:} Discharge summaries can exceed thousands of words, requiring efficient and effective text representations \cite{heo2022medical}.
+    \item \textbf{Complex Multi-Label Task:} A single note may encode multiple diagnoses; models must handle the combinatorial explosion of possible label subsets.
+    \item \textbf{Explainability and Bias:} Clinicians demand interpretable predictions to trust automated outputs \cite{holzinger2017we}, and any systemic bias in data or model training can compromise patient care.
+\end{itemize}
+
+\section{Existing Approaches and Limitations}
+Early work on automated ICD coding used \textbf{rule-based} systems \cite{farkas2008automatic} or \textbf{traditional machine learning} (e.g., SVMs, logistic regression) \cite{perotte2014diagnosis}, but these often struggled to capture semantic nuances in clinical notes. More recent research has turned to:
+\begin{itemize}
+    \item \textbf{Neural Networks:} CNN- or RNN-based methods (e.g., CAML \cite{mullenbach2018explainable}, LAAT \cite{vu2020label}) show improved performance but still suffer on rare codes.
+    \item \textbf{Transformer-Based Models:} BERT variants \cite{devlin2019bert} and specialized models (PLM-ICD \cite{huang2022plm}, ModernBERT \cite{warner2024modernbert}) can handle complex text but often require truncation for very long documents.
+    \item \textbf{Curriculum Learning and Hierarchical Methods:} Some work leverages the hierarchy of ICD codes \cite{ren2022hicu}, but coverage for rare labels remains suboptimal.
+\end{itemize}
+Moreover, simple data-level strategies (like random oversampling) can lead to overfitting or bias, highlighting the need for domain-aware augmentation.
+
+\section{Problem Statement}
+Given the crucial role of ICD codes and the steep challenge of \textbf{rare or underrepresented conditions}, this thesis aims to develop an automated ICD coding pipeline that:
+\begin{enumerate}
+    \item Significantly boosts recall and precision for rarely occurring ICD codes.
+    \item Maintains or improves overall performance on common codes.
+    \item Provides transparent and interpretable predictions suitable for clinical review.
+\end{enumerate}
+The system should handle long, unstructured notes and be robust to the wide variety of clinical scenarios in MIMIC-IV.
+
+\section{Proposed Solution}
+To tackle the above challenges, we propose a holistic framework encompassing:
+\begin{enumerate}
+    \item \textbf{LLM-Driven Synthetic Data Generation:} Use large language models, enriched by medical ontologies (e.g., SNOMED CT, UMLS) and co-occurrence statistics, to create realistic discharge summaries for underrepresented ICD codes. A \emph{rigorous validation pipeline} filters out hallucinated or inconsistent samples.
+    \item \textbf{Advanced Multi-Label Classification Architectures:} Explore CNN-based (CAML, LAAT), transformer-based (PLM-ICD, MSMN, ModernBERT), and knowledge-aware approaches (hyperbolic embeddings, retrieval augmentation) to determine optimal strategies for rare-code prediction.
+    \item \textbf{Explainability and Bias Assessment:} Apply attention visualization, SHAP, or integrated gradients to interpret predictions, especially for complex or rare labels. Evaluate potential demographic or disease-specific biases introduced by synthetic data.
+    \item \textbf{Environment and Resource Optimization:} Implement quantization, gradient checkpointing, and other memory-saving techniques to train large models within a 6GB GPU or Colab Pro+ constraints.
+\end{enumerate}
+
+\section{Objectives}
+Key objectives include:
+\begin{itemize}
+    \item \textbf{Objective 1: Data Augmentation for Rare Codes.} Demonstrate that LLM-informed synthetic samples can mitigate long-tail issues and improve macro-F1 on rarely occurring diagnoses by at least 10--15\%.
+    \item \textbf{Objective 2: Comprehensive Validation.} Implement a multi-layer validation approach—combining rule-based checks, LLM-based factual analysis, and retrieval-based verification—to ensure synthetic notes are both coherent and medically plausible.
+    \item \textbf{Objective 3: High-Performing Classifier.} Achieve state-of-the-art or near state-of-the-art results on MIMIC-IV ICD-10 benchmarks, focusing on improved recall for difficult or rare codes.
+    \item \textbf{Objective 4: Interpretability and Bias Analysis.} Provide consistent interpretability tools (e.g., code-level attention maps) and systematically analyze any performance disparities or biases introduced by synthetic data augmentation.
+\end{itemize}
+
+\section{Thesis Outline}
+This thesis is organized as follows:
+\begin{itemize}
+    \item \textbf{Chapter 2: Literature Review} --- Surveys existing ICD coding techniques, synthetic text generation, and curriculum/hierarchical methods.
+    \item \textbf{Chapter 3: Problem Definition and Formulation} --- Delves deeper into the multi-label setup, data imbalance, and the formal task setting.
+    \item \textbf{Chapter 4: Methodology} --- Details the advanced data augmentation pipeline, knowledge integration, and model architectures.
+    \item \textbf{Chapter 5: Dataset Understanding} --- Explores MIMIC-IV’s characteristics, focusing on code frequency distributions and note length.
+    \item \textbf{Chapter 6: Results} --- Presents experimental outcomes, including ablations for synthetic data, error analysis, and bias detection.
+    \item \textbf{Chapter 7: Conclusion and Work Timeline} --- Summarizes achievements, limitations, and proposes directions for future research.
+\end{itemize}
+
+In essence, this research seeks to \textbf{bridge the data imbalance gap} in ICD coding by leveraging domain-specific knowledge and advanced synthetic generation techniques. By pairing these augmented datasets with cutting-edge model architectures, we aim to achieve robust and interpretable performance gains, particularly for complex or rare diagnoses.
+
+\section{Background}
+Accurate medical coding is essential in modern healthcare systems for various purposes, including billing, epidemiology, research, and clinical decision support. The \textbf{International Classification of Diseases (ICD)} is a standardized system developed by the World Health Organization (WHO) for coding diseases, symptoms, and procedures~\cite{who2019icd11}. In particular, the latest version, \textbf{ICD-11}, provides a comprehensive coding system used globally.
+
+\section{Importance of ICD Coding}
+ICD codes serve as a critical link between clinical care and administrative functions. They are used for:
+\begin{itemize}
+    \item \textbf{Billing and Reimbursement}: Accurate coding ensures that healthcare providers are appropriately reimbursed for the services provided.
+    \item \textbf{Clinical Research}: Researchers use ICD codes to identify patient populations and study disease prevalence and outcomes.
+    \item \textbf{Public Health Surveillance}: Health authorities monitor disease outbreaks and trends using aggregated ICD code data.
+    \item \textbf{Healthcare Planning}: Policy-makers rely on coding data to allocate resources and plan healthcare services.
+\end{itemize}
+
+\section{Challenges in Manual ICD Coding}
+Despite its importance, manual ICD coding is a complex and time-consuming process. Trained medical coders must interpret unstructured clinical narratives and assign appropriate codes. Challenges include:
+\begin{itemize}
+    \item \textbf{Volume of Data}: Healthcare facilities generate vast amounts of clinical documentation daily.
+    \item \textbf{Complexity of Coding Systems}: The ICD system contains thousands of codes, with ICD-10-CM having around 68,000 diagnosis codes~\cite{dong2022automated}.
+    \item \textbf{Ambiguity in Clinical Language}: Clinical notes often contain ambiguous or colloquial language, making interpretation difficult.
+    \item \textbf{Human Error}: Manual coding is prone to errors, which can lead to incorrect billing, compliance issues, and compromised data quality.
+\end{itemize}
+
+\section{Need for Automated ICD Coding}
+To address these challenges, there is a pressing need for automated ICD coding systems that can:
+\begin{itemize}
+    \item \textbf{Improve Efficiency}: Reduce the time and effort required for manual coding.
+    \item \textbf{Enhance Accuracy}: Minimize human errors and improve coding consistency.
+    \item \textbf{Support Scalability}: Handle large volumes of clinical data efficiently.
+    \item \textbf{Facilitate Data Utilization}: Enable better use of clinical data for research and decision-making.
+\end{itemize}
+
+\section{Challenges in Automated ICD Coding}
+While automated ICD coding holds promise, it faces several significant challenges:
+\begin{itemize}
+    \item \textbf{Data Imbalance and Scarcity}: Clinical datasets exhibit a long-tailed distribution of ICD codes, with a few codes being highly frequent and many codes occurring rarely~\cite{rios2018few}. Models often perform poorly on rare codes due to insufficient training data.
+    \item \textbf{Complexity of Clinical Texts}: Clinical narratives are lengthy, unstructured, and contain domain-specific terminology, abbreviations, and inconsistencies~\cite{wrenn2010quantifying}.
+    \item \textbf{Multi-Label Classification}: Assigning ICD codes is a multi-label task, where multiple codes may be relevant for a single clinical note.
+    \item \textbf{Explainability and Interpretability}: Healthcare professionals require transparent and interpretable models to trust and adopt automated coding systems~\cite{holzinger2017we}.
+\end{itemize}
+
+\section{Existing Approaches and Limitations}
+Various machine learning and deep learning approaches have been proposed for automated ICD coding:
+\begin{itemize}
+    \item \textbf{Rule-Based Systems}: Early methods relied on handcrafted rules and keyword matching but lacked scalability and adaptability~\cite{farkas2008automatic}.
+    \item \textbf{Traditional Machine Learning}: Techniques like Support Vector Machines and Decision Trees were used but struggled with high-dimensional, sparse data and failed to capture semantic nuances~\cite{perotte2014diagnosis}.
+    \item \textbf{Deep Learning Models}: Convolutional Neural Networks (CNNs) and Recurrent Neural Networks (RNNs) have improved performance by learning hierarchical representations of text~\cite{mullenbach2018explainable, vu2020label}. However, they often underperform on rare codes due to data imbalance.
+    \item \textbf{Transformer-Based Models}: Models like BERT have advanced natural language understanding but may not consistently outperform CNNs in clinical text classification and face challenges with long documents~\cite{dong2022automated, gao2021limitations}.
+    \item \textbf{Curriculum Learning and Hierarchical Models}: Methods like HiCu leverage the hierarchical structure of ICD codes to improve performance on rare codes~\cite{ren2022hicu}.
+\end{itemize}
+
+Despite these advancements, significant gaps remain in effectively handling data imbalance, processing complex clinical texts, and providing explainable predictions.
+
+\section{Problem Statement}
+In this thesis, we address the problem of accurately predicting ICD codes from clinical narratives, with a focus on improving performance on rare codes. The key challenges include:
+\begin{itemize}
+    \item \textbf{Data Imbalance}: Handling the long-tailed distribution of ICD codes and the scarcity of annotated data for rare codes.
+    \item \textbf{Complexity of Clinical Texts}: Processing lengthy and unstructured clinical narratives to extract relevant information.
+    \item \textbf{Explainability}: Providing interpretable predictions to gain clinician trust.
+\end{itemize}
+
+\section{Proposed Solution}
+To tackle these challenges, we propose a comprehensive approach that includes:
+\begin{itemize}
+    \item \textbf{Hybrid Data Augmentation}: Combining Retrieval Augmented Generation (RAG) with ontology-based methods to generate synthetic clinical notes for rare diseases, augmenting the training data.
+    \item \textbf{Knowledge Integration}: Leveraging medical ontologies and knowledge graphs (e.g., SNOMED CT, RxNorm) to enrich data representation and model understanding of medical concepts.
+    \item \textbf{Transformer-Based Models}: Utilizing advanced transformer architectures adapted for long clinical documents to capture contextual information.
+    \item \textbf{Multi-Label Classification Techniques}: Implementing label embedding, hierarchical classification, and label grouping to handle the extensive label space.
+    \item \textbf{Explainability Techniques}: Integrating methods like SHAP, LIME, and Integrated Gradients to provide transparent insights into model predictions.
+\end{itemize}
+
+\section{Objectives}
+The objectives of this thesis are:
+\begin{enumerate}
+    \item Develop an advanced, explainable model for ICD code prediction, focusing on rare codes.
+    \item Implement hybrid data augmentation techniques to address data imbalance.
+    \item Integrate medical knowledge through ontologies and knowledge graphs.
+    \item Enhance model interpretability to facilitate clinical acceptance.
+\end{enumerate}
+
+\section{Thesis Outline}
+The remainder of this thesis is organized as follows.
+\begin{itemize}
+    \item \textbf{Chapter 2: Literature Review} – A detailed review of existing approaches and challenges in automated ICD coding.
+    \item \textbf{Chapter 3: Definition and formulation of the problem} – A precise statement of the problem and its formulation.
+    \item \textbf{Chapter 4: Methodology} – An in-depth explanation of the proposed methods and details of the implementation.
+    \item \textbf{Chapter 5: Dataset Understanding} – A description of the datasets used and their characteristics.
+    \item \textbf{Chapter 6: Results} – Presentation and analysis of the experimental results.
+    \item \textbf{Chapter 7: Conclusion and Work Timeline} – A summary of the work and the plan for completing the remaining tasks.
+\end{itemize}

@@ -1,1 +1,344 @@
 % This is chap-methodology.tex
+\chapter{Methodology}
+
+This chapter outlines our comprehensive methodology for automating the prediction of ICD-10-CM codes from clinical texts. Building on insights from recent critical reviews (e.g., \cite{edin2023automated,nguyen2023mimicivicd}) and best practices identified in our literature survey, we propose a stepwise approach that starts with simpler baselines and culminates in advanced retrieval-augmented and knowledge graph (KG)–integrated methods. Our overarching goals are to:
+
+\begin{enumerate}
+    \item Ensure a \textbf{fair and reproducible comparison} among all approaches by using consistent data splits and unified evaluation protocols,
+    \item \textbf{Address the long-tail distribution} of ICD codes and the associated performance drop for rare labels,
+    \item Integrate \textbf{modern deep learning architectures} (e.g., PLM-ICD, ModernBERT) that can handle longer clinical notes,
+    \item Investigate the effect of \textbf{retrieval-augmented generation} (RAG) and \textbf{ontology/knowledge graph integration} in improving coverage and interpretability.
+\end{enumerate}
+
+\section{Data Preparation and Exploration}
+
+\subsection{Data Sources and Scope}
+We focus primarily on:
+\begin{itemize}
+    \item \textbf{MIMIC-IV} (v2.2 or newer) for real-world discharge summaries annotated with ICD-9 or ICD-10 codes. We concentrate on ICD-10-coded admissions for our main experiments, following recent recommendations \cite{edin2023automated}.
+    \item If resources allow, we may also incorporate \textbf{eICU} data or \textbf{synthetic data} (e.g., via JonSnowLabs) to bolster rare-code examples.
+\end{itemize}
+All data is \textbf{de-identified} to comply with privacy regulations (HIPAA, etc.).
+
+\subsection{Development Environment and Data Processing}
+\begin{itemize}
+    \item \textbf{Database Tools}: We load \texttt{notes} and \texttt{diagnoses\_icd} (plus relevant admission data) into \textbf{DuckDB} for fast in-memory SQL queries and merges.
+    \item \textbf{Cleaning and Normalization}:
+    \begin{enumerate}
+        \item Remove or redact explicit PHI placeholders.
+        \item Convert text to lowercase; optionally retain digits (some studies found removing them hinders certain code predictions).
+        \item Tokenize via spaCy or WordPiece (depending on the final model choice).
+    \end{enumerate}
+    \item \textbf{Data Versioning}: Use Data Version Control (\texttt{DVC}) to track dataset transformations and maintain reproducibility.
+\end{itemize}
+
+\subsection{Train/Dev/Test Splits and Stratification}
+Following \cite{edin2023automated}, we:
+\begin{itemize}
+    \item Construct a \textbf{“clean” MIMIC-IV ICD-10} split that minimizes missing codes in the test set.
+    \item Remove codes with very few appearances (e.g., fewer than 10).
+    \item Apply \textbf{multi-label stratified sampling} to ensure that each code is represented across train/dev/test and that no patient appears in more than one split.
+\end{itemize}
+This prevents artificially low macro-F1 scores caused by codes not present in the test set.
+
+\subsection{Data Exploration and Analysis}
+\begin{itemize}
+    \item Create \textbf{code frequency plots} to confirm the severe long-tail distribution.
+    \item Consider top-50 or top-200 code subsets for some experiments (allowing more direct comparisons with prior works).
+    \item Optionally segment notes (e.g., extracting “History of Present Illness” or “Medications” sections) if needed to reduce noise or standardize input length.
+\end{itemize}
+
+
+\section{Incremental Experiment Design}
+
+To systematically evaluate improvements and control complexity, we propose a four-stage experiment setup:
+
+\subsection{Stage A: Baseline Multi-Label Methods}
+\paragraph{Objective:} Provide naive references for multi-label classification of ICD codes.
+
+\begin{itemize}
+    \item \textbf{Models}:
+    \begin{enumerate}
+        \item \textbf{Logistic Regression} (binary relevance): Convert each note to TF-IDF vectors; train one logistic classifier per code.
+        \item \textbf{Support Vector Machine} (binary relevance): Similar pipeline, but with linear SVMs.
+        \item \textbf{(Optional) KNN} for completeness, though likely inefficient.
+    \end{enumerate}
+    \item \textbf{Data Variants}:
+    \begin{itemize}
+        \item Unbalanced dataset (all codes) vs. balanced approaches (oversampling or undersampling).
+        \item Possibly top-50 / top-200 codes if needed.
+    \end{itemize}
+    \item \textbf{Implementation}:
+    \begin{itemize}
+        \item Use scikit-learn with up to 20k features from TF-IDF for manageability.
+        \item Evaluate on micro-F1, macro-F1 (corrected), and perhaps Precision@k to see ranking performance.
+    \end{itemize}
+\end{itemize}
+
+
+\subsection{Stage B: Advanced Deep Architectures}
+\paragraph{Objective:} Compare popular CNN/RNN/Transformer architectures under a unified training regimen.
+
+\begin{enumerate}
+    \item \textbf{Candidates}:
+    \begin{itemize}
+        \item \textbf{CAML, MultiResCNN, LAAT} \cite{mullenbach2018explainable,li2020multi,vu2020label} with label-wise attention.
+        \item \textbf{PLM-ICD} \cite{huang2022plm}, which uses BERT-based embeddings in chunks.
+        \item \textbf{ModernBERT} (long context capacity) to handle entire notes if feasible.
+    \end{itemize}
+    \item \textbf{Training Consistency}:
+    \begin{itemize}
+        \item All models trained up to 20--30 epochs with \textbf{AdamW}, using warm-up + linear decay for learning rate.
+        \item Documents truncated or chunked to 2k--4k tokens (CNN/RNN limit). For ModernBERT, attempt up to 8k tokens.
+        \item Decision boundary tuned on the dev set for maximum micro-F1.
+    \end{itemize}
+    \item \textbf{Outcome}:
+    \begin{itemize}
+        \item Identify the top-1 or top-2 neural architectures by macro-F1, coverage of rare codes, and interpretability potential.
+    \end{itemize}
+\end{enumerate}
+
+
+\subsection{Stage C: RAG + Knowledge Graph Integration}
+\paragraph{Objective:} Integrate external knowledge to improve coverage and handle rare/ambiguous codes. \textbf{Apply only to the top models from Stage B} to avoid excessive combinatorial overhead.
+
+\subsubsection{RAG Methods}
+\begin{itemize}
+    \item \textbf{Retrieval Corpus}: PubMed or in-hospital knowledge base. Pre-encode with a neural retriever (e.g., Sentence-BERT).
+    \item \textbf{Integration}:
+    \begin{itemize}
+        \item For each note, retrieve top-$k$ relevant passages, then either (a) concatenate or (b) late-fuse them in the final encoder.
+    \end{itemize}
+    \item \textbf{Comparison}:
+    \begin{itemize}
+        \item Evaluate how RAG affects rare-code recall, code coverage, and never-predicted rates.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Knowledge Graph (KG) Integration}
+\begin{itemize}
+    \item \textbf{Ontology Mapping}: Map recognized medical entities to SNOMED CT or UMLS IDs.
+    \item \textbf{Integration Strategy}:
+    \begin{enumerate}
+        \item \textbf{Feature Concatenation}: Attach KG-based embeddings to each token or note-level embedding.
+        \item \textbf{GNN or Hyperbolic Embeddings}: If feasible, build a small subgraph for each note and aggregate representations, following \cite{ren2022hicu}.
+    \end{enumerate}
+    \item \textbf{Outcome}:
+    \begin{itemize}
+        \item Test whether explicit symbolic knowledge helps disambiguate near-duplicate or numeric-based codes.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Combined RAG + KG (Optional)}
+If resources allow, we can combine retrieval-augmented text with KG-based features for a “full synergy” pipeline. This is a stretch goal but could yield deeper coverage of rare codes.
+
+\subsection{Stage D: Interpretability and Error Analysis}
+\paragraph{Objective:} Provide actionable insights on model decisions and highlight rare-code performance.
+
+\begin{itemize}
+    \item \textbf{Attention Visualization}: For CAML or LAAT, highlight which text segments triggered each code.
+    \item \textbf{Gradient-based Methods}: On a sample of notes, use SHAP or Integrated Gradients to see if the top model’s rationale is clinically coherent.
+    \item \textbf{Error Profiling for Rare Codes}: Evaluate which codes remain never predicted, or incorrectly predicted. Explore how many improved with data augmentation or KG features.
+\end{itemize}
+
+
+\section{Model Training and Evaluation}
+
+\subsection{Loss Functions and Decision Thresholding}
+\begin{itemize}
+    \item \textbf{Binary Cross Entropy} or \textbf{Focal Loss} are used for multi-label classification in neural models.
+    \item Decision threshold is tuned on the dev set to maximize \textbf{micro-F1}.
+\end{itemize}
+
+\subsection{Evaluation Metrics}
+\begin{enumerate}
+    \item \textbf{Micro-F1} and \textbf{Macro-F1 (corrected)}: Avoid penalizing codes absent in test splits.
+    \item \textbf{Precision@k} and \textbf{Recall@k}: For top-k predicted codes.
+    \item \textbf{Never-Predicted Rate (NPR)}: Fraction of codes the model never outputs correctly.
+    \item \textbf{Exact Match Ratio (EMR)} (optional): Proportion of notes for which the predicted set of codes is exactly correct.
+\end{enumerate}
+We additionally track improvements on rare codes specifically, e.g., by computing macro-F1 restricted to codes with fewer than $M$ training examples.
+
+
+
+
+\section{Plan}
+
+This chapter presents a comprehensive plan for analyzing and preparing the MIMIC-IV dataset before building our automated ICD coding framework. It outlines the key questions, steps, and considerations essential for understanding and structuring the data. The subsequent “Implementation” section will detail the practical execution of this plan.
+
+\subsection{Overview of MIMIC-IV}
+
+\paragraph{Motivation and Context.}
+MIMIC-IV is a large, de-identified database that combines critical care records from the Beth Israel Deaconess Medical Center (BIDMC). It contains extensive information about patient hospitalizations, including demographics, physiological measurements, clinical notes, and administrative data. The dataset is a cornerstone for machine learning and data science research in healthcare, especially for tasks such as mortality prediction, readmission risk assessment, and—as in our project—automated ICD coding.
+
+\paragraph{Module Structure.}
+MIMIC-IV is partitioned into multiple modules:
+\begin{itemize}
+  \item \textbf{hosp}: Hospital-wide data (demographics, admissions, diagnoses, procedures, etc.).
+  \item \textbf{icu}: ICU-specific data (high-frequency chart events, procedures, inputs/outputs).
+  \item \textbf{ed}: Data from the emergency department.
+  \item \textbf{note}: Textual notes, including discharge summaries and radiology reports.
+  \item \textbf{cxr}: Linking data for chest X-ray images (MIMIC-CXR), if used.
+\end{itemize}
+For automated ICD coding from discharge summaries, our core focus is on:
+\begin{itemize}
+  \item \texttt{diagnoses\_icd} (in the \emph{hosp} module),
+  \item \texttt{admissions} (in the \emph{hosp} module),
+  \item \texttt{patients} (in the \emph{hosp} module), and
+  \item \texttt{discharge} notes (in the \emph{note} module).
+\end{itemize}
+Nonetheless, we keep open the possibility of integrating ICU or ED data for additional features if required.
+
+\subsection{Data Characteristics and Key Questions}
+
+\subsubsection{Patient Population and Diversity}
+\begin{itemize}
+    \item \textbf{Size and Composition.} The dataset includes over 40,000 patients, spanning a broad demographic range. We need to confirm how these patients are distributed across different age groups, gender, and anchor-year cohorts.
+    \item \textbf{Clinical Relevance.} Because many patients in MIMIC-IV are in critical care, the dataset may have disease distributions that differ from general hospital populations. We ask: \emph{Does this skew limit generalizability for ICD coding?}
+\end{itemize}
+
+\subsubsection{Hospital Admissions and ICD Codes}
+\begin{itemize}
+    \item \textbf{Admissions Volume.} Each admission is uniquely identified by \texttt{hadm\_id}, and some patients have multiple admissions. We plan to analyze the average number of admissions per patient.
+    \item \textbf{ICD Code Assignments.} Diagnoses in MIMIC-IV are stored in \texttt{diagnoses\_icd}, which includes both ICD-9 and ICD-10 codes. We must identify how many admissions have ICD-10 codes, how many distinct codes appear, and the frequency distribution (long-tailed phenomenon).
+    \item \textbf{Rare Code Challenge.} A key question is how many ICD codes appear fewer than, say, 10 or 20 times. We hypothesize a large fraction of codes are rare, which complicates classification.
+\end{itemize}
+
+\subsubsection{Discharge Summaries}
+\begin{itemize}
+    \item \textbf{Text Volume and Lengths.} Over 330,000 unique clinical notes exist, and many are discharge summaries with an average of about 1,500 words. We plan to measure the actual length distribution (e.g., short vs. very long notes).
+    \item \textbf{Free-Text Complexity.} Clinical narratives often include abbreviations, domain-specific jargon, and redundancies (colloquially “note bloat”). We want to see if we need advanced text preprocessing or chunking for our modeling.
+    \item \textbf{Linking to ICD Codes.} The discharge summaries are linked to \texttt{admissions} and \texttt{diagnoses\_icd} by \texttt{subject\_id} and \texttt{hadm\_id}. We must verify we can retrieve a consistent set of (note, ICD codes) pairs for each admission.
+\end{itemize}
+
+\subsection{Data Preprocessing Plan}
+
+\paragraph{1) Data Extraction and Joining.}
+We plan to retrieve the relevant columns from:
+\begin{itemize}
+    \item \texttt{admissions}: (\texttt{hadm\_id}, \texttt{subject\_id}, \texttt{admittime}, \texttt{dischtime}, etc.)
+    \item \texttt{diagnoses\_icd}: (\texttt{subject\_id}, \texttt{hadm\_id}, \texttt{icd\_code}, \texttt{icd\_version})
+    \item \texttt{discharge}: (\texttt{subject\_id}, \texttt{hadm\_id}, \texttt{text} of the summary)
+    \item \texttt{patients}: (\texttt{subject\_id}, \texttt{anchor\_age}, \texttt{anchor\_year\_group}, \texttt{gender})
+\end{itemize}
+We will join them into a consolidated “analysis-ready” dataset, making sure we do not lose admissions that lack a discharge summary or lack ICD codes (the plan is to see if they are relevant or must be discarded).
+
+\paragraph{2) Text Cleaning.}
+Discharge summaries will be processed to:
+\begin{itemize}
+    \item Remove PHI placeholders such as \texttt{[\*\*...\*\*]} strings.
+    \item Optionally convert to lowercase and handle special characters.
+    \item Tokenize and segment into sections (e.g., “History of Present Illness,” “Medications,” etc.) if beneficial for more structured modeling.
+\end{itemize}
+We will pay special attention to the presence of numerical data or standard medical abbreviations that might be relevant to ICD coding.
+
+\paragraph{3) Handling Missing or Inconsistent Entries.}
+\begin{itemize}
+    \item \textbf{No Discharge Summary.} Some admissions may not have a final discharge summary (e.g., if the patient expired quickly in the ED). Decide whether to drop or keep them.
+    \item \textbf{No ICD Codes.} Some admissions might lack coded diagnoses (or have only ICD-9 codes). We are focusing on ICD-10-coded admissions, so these will likely be excluded from training data.
+\end{itemize}
+
+\paragraph{4) Dealing with Duplicates and Similar Notes.}
+Clinical notes can be duplicated or near-duplicated (e.g., discharge summary repeated in an addendum). We plan to:
+\begin{itemize}
+    \item Apply LSH/MinHash or a similar approach to identify near-duplicates.
+    \item Decide how to treat duplicates (either remove or unify) to avoid artificially inflating training data.
+\end{itemize}
+
+\subsection{Data Imbalance Considerations}
+
+\paragraph{1) Code Frequency Distribution.}
+After joining notes with ICD codes, we will plot the frequency distribution of codes to confirm the expected heavy-tail phenomenon. Identifying how many codes occur below certain frequency thresholds (e.g., 10 or 20) is crucial for modeling decisions.
+
+\paragraph{2) Augmentation Strategy.}
+We aim to use Retrieval-Augmented Generation (RAG) or knowledge-based approaches to generate synthetic notes for rare codes. We need to:
+\begin{itemize}
+    \item Identify which codes are “rare enough” to warrant synthetic data generation.
+    \item Validate synthetic data qualitatively and quantitatively.
+\end{itemize}
+
+\subsection{Data Storage and Management Plan}
+
+\paragraph{Database: DuckDB.}
+We have decided to use DuckDB for:
+\begin{itemize}
+    \item \textbf{In-Memory Efficiency}: Facilitates fast prototyping and interactive queries on structured MIMIC-IV data.
+    \item \textbf{Easy Integration with Python}: We can use standard Python scripts (pandas, Polars, or pyduckdb) to manipulate large tables.
+\end{itemize}
+
+\paragraph{Scalability.}
+As we add synthetic data or additional external knowledge bases (e.g., SNOMED CT lookups), we must ensure our data pipeline can handle the expanded volume. DuckDB’s columnar design should suffice for pilot experiments, but we may move to a larger-scale database if needed.
+
+\paragraph{Version Control.}
+All transformations—SQL queries, Python data merges, and text cleaning scripts—will be tracked by Data Version Control (DVC) or Git to ensure reproducibility.
+
+\subsection{Security and Compliance}
+
+\paragraph{De-Identification.}
+MIMIC-IV is already de-identified, but we must confirm no re-identification can occur, especially after generating synthetic notes. We will:
+\begin{itemize}
+    \item Double-check that any new outputs or textual data do not inadvertently reveal PII.
+    \item Use safe text generation protocols for synthetic data augmentation.
+\end{itemize}
+
+\paragraph{Regulatory Aspects.}
+We comply with HIPAA standards and adhere to the data use agreement set forth by PhysioNet for MIMIC-IV. Any derivative dataset (e.g., synthetic expansions) must remain under the same data usage constraints.
+
+\subsection{Summary of the Plan}
+In summary, our plan is to:
+\begin{enumerate}
+    \item Thoroughly \textbf{join and explore} the relevant tables (admissions, patients, diagnoses, discharge).
+    \item \textbf{Clean and standardize} the discharge summaries, paying attention to near-duplicates and missing data.
+    \item \textbf{Quantify the code imbalance} to identify “rare codes” that require augmentation.
+    \item \textbf{Adopt a robust data management} workflow (DuckDB + version control) for reproducibility.
+    \item Maintain strict \textbf{compliance and ethical guidelines}.
+\end{enumerate}
+The final outcome is an “analysis-ready” table linking each admission (hadm\_id) to a single discharge summary text and a set of ICD-10 codes for supervised learning.
+
+\section{Implementation (Planned)}
+
+\textbf{[TODO: This section will be filled after we execute the plan. Below is a high-level outline of anticipated steps:]} 
+
+\begin{enumerate}
+    \item \textbf{Data Loading (SQL + Python)}  
+    We will load the CSV or Parquet files for \texttt{admissions}, \texttt{diagnoses\_icd}, \texttt{patients}, and \texttt{discharge} into DuckDB. Example pseudo-code:
+\begin{verbatim}
+CREATE TABLE admissions AS
+  SELECT * FROM 'admissions.csv';
+
+CREATE TABLE diagnoses_icd AS
+  SELECT * FROM 'diagnoses_icd.csv';
+
+CREATE TABLE discharge AS
+  SELECT * FROM 'discharge.csv';
+...
+\end{verbatim}
+    \item \textbf{Data Joining and Filtering}  
+    - Use \texttt{JOIN} on \texttt{subject\_id} and \texttt{hadm\_id} to link discharge summaries to diagnoses.  
+    - Filter out non-ICD-10 codes or admissions without discharge summaries.  
+    - Keep only rows that satisfy minimal length or minimal code frequency conditions.
+
+    \item \textbf{Text Preprocessing and Deduplication}  
+    - Python scripts to remove PHI placeholders, convert to lowercase, and tokenize.  
+    - MinHash-based duplication check, removing or merging near-identical summaries.
+
+    \item \textbf{Statistical Summaries and Visualizations}  
+    - Generate histograms of note lengths.  
+    - Plot ICD code frequencies in log scale to confirm data imbalance.  
+
+    \item \textbf{Integration with Ontologies / Knowledge Graphs}  
+    - If needed, for each token or concept recognized, map to UMLS or SNOMED CT identifiers for advanced features.  
+    - Store these mappings in auxiliary tables for easy joining.
+
+    \item \textbf{Version Control and Outputs}  
+    - Use DVC or Git for each transformation script to allow rollback and reproducibility.  
+    - Produce final “analysis-ready” table(s) stored in DuckDB or CSV with columns: \texttt{subject\_id, hadm\_id, discharge\_text, [list of ICD-10 codes]}.
+\end{enumerate}
+
+Once these tasks are completed, we will have a clean, joined, and labeled dataset suitable for training and evaluating our ICD coding models. The subsequent chapters will detail how these data products feed into the modeling pipeline and how synthetic data augmentation is integrated. 
+
+
+
+
+
+

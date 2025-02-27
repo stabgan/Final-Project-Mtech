@@ -1,0 +1,55 @@
+\chapter{Problem Definition and Formulation}
+
+\section{Problem Statement}
+The primary goal of this research is to develop an automated system that accurately predicts \textbf{ICD codes} from unstructured \textbf{clinical narratives}, with a specific focus on improving prediction performance for \textbf{rare codes}.
+
+\section{Challenges Addressed}
+The problem encompasses several challenges:
+\begin{itemize}
+    \item \textbf{Data Imbalance}: The ICD code distribution is highly imbalanced, with rare codes having insufficient training examples.
+    \item \textbf{Complexity of Clinical Texts}: Clinical narratives are lengthy, unstructured, and contain domain-specific language.
+    \item \textbf{Multi-Label Classification}: Each clinical note may correspond to multiple ICD codes, requiring effective multi-label prediction.
+    \item \textbf{Knowledge Integration}: Incorporating domain knowledge from medical ontologies to enhance model understanding.
+    \item \textbf{Explainability}: Providing interpretable predictions to ensure clinical trust and acceptance.
+\end{itemize}
+
+\section{Problem Formulation}
+Let \( D = \{(x_i, Y_i)\}_{i=1}^N \) denote the dataset, where \( x_i \) is the \( i \)-th clinical note and \( Y_i \subseteq \mathcal{L} \) is the set of ICD codes assigned to \( x_i \), with \( \mathcal{L} \) being the set of all ICD codes.
+
+Our objective is to learn a function \( f: X \rightarrow 2^{\mathcal{L}} \) that maps a clinical note \( x \in X \) to a subset of ICD codes \( Y \subseteq \mathcal{L} \), such that \( f \) maximizes prediction accuracy, especially for rare codes.
+
+\section{Handling Data Imbalance}
+To address data imbalance, we aim to augment the dataset \( D \) by generating synthetic clinical notes \( \tilde{x}_j \) for rare ICD codes \( l \in \mathcal{L}_{\text{rare}} \), where \( \mathcal{L}_{\text{rare}} \subseteq \mathcal{L} \) denotes the set of rare codes. This involves creating a new set \( \tilde{D} = \{(\tilde{x}_j, Y_j)\} \) to supplement the original dataset, where \( Y_j \) includes rare codes.
+
+\section{Knowledge Integration}
+We seek to enrich the model's understanding by integrating knowledge from medical ontologies \( \mathcal{O} \) (e.g., SNOMED CT, RxNorm). This involves mapping clinical entities in \( x_i \) to concepts in \( \mathcal{O} \) and using this structured information in model training. Let \( \phi(x_i) \) denote the mapping from clinical notes to ontology concepts.
+
+\section{Multi-Label Classification Approach}
+Given the large label space and hierarchical relationships among ICD codes, we plan to employ advanced multi-label classification techniques:
+\begin{itemize}
+    \item \textbf{Label Embedding}: Representing ICD codes in a continuous space to capture semantic relationships.
+    \item \textbf{Hierarchical Classification}: Leveraging the hierarchical structure of ICD codes to inform the classification process.
+    \item \textbf{Label Grouping}: Grouping similar labels to reduce complexity and improve model efficiency.
+\end{itemize}
+
+\section{Evaluation Metrics}
+To evaluate the performance of the model, especially on rare codes, we will use metrics that consider class imbalance:
+\begin{itemize}
+    \item \textbf{Macro F1-Score}: Calculated by averaging F1-scores across all labels, giving equal weight to rare and frequent codes.
+    \item \textbf{F2-Score}: Emphasizes recall over precision, aligning with the need to reduce false negatives in medical coding.
+\end{itemize}
+
+\section{Specific Goals}
+Our specific goals are:
+\begin{enumerate}
+    \item Achieve at least a 10\% improvement in macro F2-score on rare ICD codes compared to baseline models.
+    \item Generate high-quality synthetic clinical notes for rare codes using hybrid data augmentation techniques.
+    \item Integrate explainability methods to provide interpretable predictions acceptable to clinicians.
+\end{enumerate}
+
+\section{Constraints and Considerations}
+\begin{itemize}
+    \item \textbf{Data Privacy}: Ensure compliance with data use agreements and patient privacy regulations.
+    \item \textbf{Computational Resources}: Optimize model design to work within available computational resources.
+    \item \textbf{Clinical Relevance}: Engage with medical experts to validate the clinical plausibility of generated notes and model predictions.
+\end{itemize}
